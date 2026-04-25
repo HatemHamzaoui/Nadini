@@ -87,10 +87,11 @@ jobs:
         run: ruff check app/ tests/
 
       - name: Type check imports
-        run: python -c "
-          from app.core.config import Settings
-          from app.api.schemas import MagicLinkRequest, TokenResponse
-          from app.compliance.disclosure import DISCLOSURE_TEXTS
+        run: |
+          python -c "
+          from app.core.config import Settings;
+          from app.api.schemas import MagicLinkRequest, TokenResponse;
+          from app.compliance.disclosure import DISCLOSURE_TEXTS;
           print('All imports OK —', len(DISCLOSURE_TEXTS), 'disclosure locales')
           "
 
