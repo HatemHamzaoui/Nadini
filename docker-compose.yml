@@ -64,6 +64,36 @@ services:
         uvicorn app.main:app --host 0.0.0.0 --port 8001 --proxy-headers
       "
 
+  # ── Meeting Service (FastAPI + WebSocket) ──
+  meeting-service:
+    build:
+      context: ./meeting-service
+      dockerfile: Dockerfile
+    environment:
+      APP_NAME: nadini-meeting
+      APP_ENV: development
+      LOG_FORMAT: console
+      DATABASE_URL: postgresql+asyncpg://admin:devpass@postgres:5432/nadini
+      REDIS_URL: redis://redis:6379/1
+      JWKS_URL: http://auth-service:8001/.well-known/jwks.json
+      JWT_ISSUER: http://localhost:8001
+      JWT_AUDIENCE: nadini
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8002 --proxy-headers
+      "
+
   # ── Frontend (Static Files) ──
   frontend:
     image: nginx:alpine
@@ -80,6 +110,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - auth-service
+      - meeting-service
 
 volumes:
   postgres_data:
