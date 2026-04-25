@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — KI-Hinweis</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+  <div class="disclosure-wrapper">
+    <div class="disclosure-card">
+      <!-- Header -->
+      <div class="disclosure-header">
+        <div class="disclosure-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M12 8v4M12 16h.01"/></svg>
+        </div>
+        <h1 data-i18n="disclosure.title">Hinweis zur KI-Nutzung</h1>
+        <p class="disclosure-version">
+          <span data-i18n="disclosure.version">Version</span>: <span id="disclosureVersion">2026-04-25</span>
+          &middot; <span data-i18n="disclosure.required">Pflichtbestätigung gem. Art. 50 AI Act</span>
+        </p>
+      </div>
+
+      <!-- Body -->
+      <div class="disclosure-body" id="disclosureBody">
+        <p data-i18n="disclosure.intro">Diese Plattform setzt Künstliche Intelligenz für die Echtzeit-Übersetzung und Verdolmetschung Ihrer Konversationen ein. Sie interagieren nicht mit menschlichen Dolmetscherinnen oder Dolmetschern.</p>
+
+        <h3 data-i18n="disclosure.what_title">Was Sie wissen sollten:</h3>
+        <ul class="disclosure-list">
+          <li data-i18n="disclosure.p1">Übersetzungen werden durch KI-Modelle erstellt und können Fehler enthalten.</li>
+          <li data-i18n="disclosure.p2">Verlassen Sie sich nicht auf KI-Übersetzungen für rechtsverbindliche, medizinische oder sicherheitskritische Entscheidungen.</li>
+          <li data-i18n="disclosure.p3">Ihre Audio-Aufnahmen werden zur Übersetzung an unsere KI-Dienste übermittelt und nach Verarbeitung gemäß unserer Datenschutzerklärung behandelt.</li>
+          <li data-i18n="disclosure.p4">Übersetzte Inhalte werden technisch als KI-generiert markiert.</li>
+        </ul>
+
+        <div class="disclosure-notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span data-i18n="disclosure.notice">Mit Ihrer Bestätigung erklären Sie, dass Sie diese Information erhalten und verstanden haben.</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="disclosure-actions">
+        <div class="disclosure-lang">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+        </div>
+        <button class="btn btn-primary btn-lg" id="acknowledgeBtn" data-i18n="disclosure.acknowledge">Verstanden, fortfahren</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="i18n-app.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    document.getElementById("acknowledgeBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("acknowledgeBtn");
+      btn.disabled = true;
+      btn.textContent = "…";
+
+      const token = localStorage.getItem("nadini-access-token");
+      const lang = localStorage.getItem("nadini-lang") || "de";
+      const cfg = typeof NADINI_CONFIG !== "undefined" ? NADINI_CONFIG : { API_MODE: "demo" };
+
+      try {
+        if (cfg.API_MODE === "live" && token && token !== "demo-access-token") {
+          await fetch(`${cfg.AUTH_API_BASE}/auth/ai-disclosure/acknowledge`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+        } else {
+          await new Promise(r => setTimeout(r, 600));
+        }
+
+        localStorage.setItem("nadini-disclosure-ack", "2026-04-25");
+        window.location.href = "dashboard.html";
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = translations[lang]?.["disclosure.acknowledge"] || "Verstanden, fortfahren";
+      }
+    });
+  </script>
+</body>
+</html>

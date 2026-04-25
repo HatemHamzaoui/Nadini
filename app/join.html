@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — Meeting beitreten</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+  <div class="join-wrapper">
+    <div class="join-card">
+      <!-- Header -->
+      <div class="join-header">
+        <a href="dashboard.html" class="brand-link">
+          <span class="brand-logo">ن</span>
+          <span class="brand-name">Nadini</span>
+        </a>
+      </div>
+
+      <!-- Meeting Info -->
+      <div class="join-info">
+        <div class="join-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h1 data-i18n="join.title">Meeting beitreten</h1>
+        <h2 class="join-meeting-name" id="joinMeetingName">Product Review Q2</h2>
+        <div class="join-meta">
+          <span class="join-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span data-i18n="join.started">Gestartet vor</span> <span id="joinTime">5 min</span>
+          </span>
+          <span class="join-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span>4 <span data-i18n="join.participants">Teilnehmer</span></span>
+          </span>
+          <span class="join-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/></svg>
+            <span>DE → EN, FR</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="join-settings">
+        <div class="form-group">
+          <label for="joinName" data-i18n="join.your_name">Ihr Name</label>
+          <input type="text" class="form-input" id="joinName" placeholder="Ihr Name" autofocus>
+        </div>
+        <div class="form-group">
+          <label for="joinLang" data-i18n="join.your_lang">Ihre Sprache</label>
+          <select class="form-input" id="joinLang">
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="zh">🇨🇳 中文</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Audio Test -->
+      <div class="join-audio-test">
+        <div class="join-audio-row">
+          <div class="join-audio-icon" id="joinMicTest">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          </div>
+          <div class="join-audio-bars" id="joinAudioBars">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <span class="join-audio-status" data-i18n="join.mic_ready">Mikrofon bereit</span>
+        </div>
+      </div>
+
+      <!-- AI Notice -->
+      <div class="join-ai-notice">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span data-i18n="join.ai_notice">Dieses Meeting verwendet KI-Echtzeit-Übersetzung. Übersetzungen können Fehler enthalten.</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="join-actions">
+        <button class="btn btn-primary btn-lg btn-block" id="joinBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+          <span data-i18n="join.join_now">Jetzt beitreten</span>
+        </button>
+      </div>
+
+      <!-- Lang Switcher -->
+      <div class="join-footer">
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="i18n-app.js"></script>
+  <script>
+    // Theme
+    const t = localStorage.getItem("nadini-theme");
+    if (t) document.documentElement.dataset.theme = t;
+
+    // Lang
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => { if (typeof setLanguage === "function") setLanguage(btn.dataset.lang); });
+    });
+    const sl = localStorage.getItem("nadini-lang");
+    if (sl && typeof setLanguage === "function") setLanguage(sl);
+
+    // Pre-fill name
+    const email = localStorage.getItem("nadini-user-email");
+    if (email) document.getElementById("joinName").value = email.split("@")[0];
+
+    // Mic test animation
+    const micBars = document.querySelectorAll("#joinAudioBars span");
+    function animateMicBars() {
+      micBars.forEach(bar => {
+        bar.style.height = (Math.random() * 16 + 4) + "px";
+      });
+      requestAnimationFrame(() => setTimeout(animateMicBars, 120));
+    }
+    animateMicBars();
+
+    // Join button
+    document.getElementById("joinBtn").addEventListener("click", () => {
+      const btn = document.getElementById("joinBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<span>Verbinden…</span>';
+
+      // Set auth if not set
+      if (!localStorage.getItem("nadini-access-token")) {
+        localStorage.setItem("nadini-access-token", "demo-access-token");
+        localStorage.setItem("nadini-refresh-token", "demo-refresh-token");
+        localStorage.setItem("nadini-user-email", document.getElementById("joinName").value + "@nadini.ai");
+        localStorage.setItem("nadini-disclosure-ack", "2026-04-25");
+      }
+
+      setTimeout(() => {
+        window.location.href = "meeting.html";
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

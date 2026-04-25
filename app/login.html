@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — Anmelden</title>
+  <link rel="canonical" href="https://nadini.ai/login">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <meta property="og:title" content="Nadini — KI-Dolmetschplattform">
+  <meta property="og:description" content="Echtzeit-KI-Übersetzung für Meetings. DSGVO & AI-Act-konform.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-wrapper">
+    <!-- Left: Branding -->
+    <div class="auth-brand">
+      <div class="auth-brand-inner">
+        <a href="../landing/index.html" class="brand-link">
+          <span class="brand-logo">ن</span>
+          <span class="brand-name">Nadini</span>
+        </a>
+        <h1 class="auth-brand-title" data-i18n="login.brand_title">Echtzeit-KI-Dolmetschen<br>für Ihre Meetings</h1>
+        <p class="auth-brand-sub" data-i18n="login.brand_sub">Mehrsprachig kommunizieren — sicher, konform, in Echtzeit.</p>
+        <div class="auth-brand-features">
+          <div class="auth-feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            <span data-i18n="login.feat1">30+ Sprachen in Echtzeit</span>
+          </div>
+          <div class="auth-feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            <span data-i18n="login.feat2">DSGVO & AI-Act-konform</span>
+          </div>
+          <div class="auth-feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            <span data-i18n="login.feat3">Kein Passwort nötig</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Login Form -->
+    <div class="auth-panel">
+      <div class="auth-panel-inner">
+        <!-- Language Switcher -->
+        <div class="auth-top-bar">
+          <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="de">DE</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="fr">FR</button>
+          </div>
+          <button class="theme-toggle" id="themeToggle" aria-label="Theme">
+            <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+
+        <!-- Step 1: Email -->
+        <div class="auth-step" id="stepEmail">
+          <h2 data-i18n="login.title">Anmelden</h2>
+          <p class="auth-desc" data-i18n="login.desc">Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen sicheren Anmeldelink.</p>
+          <form id="emailForm" class="auth-form">
+            <label for="email" data-i18n="login.email_label">E-Mail-Adresse</label>
+            <input type="email" id="email" class="auth-input" placeholder="ihre@firma.de" data-i18n-placeholder="login.email_placeholder" required autocomplete="email" autofocus>
+            <button type="submit" class="btn btn-primary btn-block" id="emailSubmit">
+              <span data-i18n="login.send_link">Magic Link senden</span>
+              <svg class="btn-spinner hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            </button>
+          </form>
+          <div class="auth-error hidden" id="emailError"></div>
+          <div class="auth-demo-divider">
+            <span data-i18n="login.or">oder</span>
+          </div>
+          <button class="btn btn-secondary btn-block" id="demoBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+            <span data-i18n="login.demo">Demo starten — ohne Anmeldung</span>
+          </button>
+        </div>
+
+        <!-- Step 2: Check Inbox -->
+        <div class="auth-step hidden" id="stepInbox">
+          <div class="auth-icon-circle">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </div>
+          <h2 data-i18n="login.check_inbox">Prüfen Sie Ihr Postfach</h2>
+          <p class="auth-desc">
+            <span data-i18n="login.link_sent_to">Wir haben einen Anmeldelink gesendet an:</span>
+            <strong id="sentEmail" class="auth-email-display"></strong>
+          </p>
+          <p class="auth-hint" data-i18n="login.link_hint">Der Link ist 5 Minuten gültig. Prüfen Sie auch den Spam-Ordner.</p>
+          <button class="btn btn-secondary btn-block" id="resendBtn" disabled>
+            <span data-i18n="login.resend">Erneut senden</span>
+            <span id="resendTimer" class="resend-timer">(60s)</span>
+          </button>
+          <button class="btn-link" id="changeEmail" data-i18n="login.change_email">Andere E-Mail verwenden</button>
+        </div>
+
+        <!-- Step 3: Verifying -->
+        <div class="auth-step hidden" id="stepVerify">
+          <div class="auth-icon-circle auth-icon-spin">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <h2 data-i18n="login.verifying">Wird verifiziert…</h2>
+          <p class="auth-desc" data-i18n="login.verifying_desc">Ihr Magic Link wird geprüft. Einen Moment bitte.</p>
+        </div>
+
+        <!-- Step 4: Error -->
+        <div class="auth-step hidden" id="stepError">
+          <div class="auth-icon-circle auth-icon-error">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+          </div>
+          <h2 data-i18n="login.error_title">Link ungültig</h2>
+          <p class="auth-desc" data-i18n="login.error_desc">Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordern Sie einen neuen an.</p>
+          <button class="btn btn-primary btn-block" id="retryBtn" data-i18n="login.retry">Neuen Link anfordern</button>
+        </div>
+
+        <div class="auth-footer">
+          <span data-i18n="login.footer">&copy; 2026 Nadini — LexAdQ GmbH</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="i18n-app.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

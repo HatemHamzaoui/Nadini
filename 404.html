@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — 404</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --bg: #0e4243; --card: #103a3b; --border: #1a4849;
+      --text: #f0efe9; --muted: #d0d3d9; --dimmed: #b0b4bc;
+      --gold: #E8820C; --gold-bg: rgba(230,168,23,0.10); --gold-border: rgba(230,168,23,0.30);
+      --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    }
+    [data-theme="light"] {
+      --bg: #ffffff; --card: #ffffff; --border: #e5e7eb;
+      --text: #111827; --muted: #4b5563; --dimmed: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font); background: var(--bg); color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .error-card {
+      text-align: center; max-width: 440px; padding: 48px 32px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .error-logo { font-size: 32px; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+    .error-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 28px; }
+    .error-code { font-size: 72px; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 8px; letter-spacing: -0.04em; }
+    .error-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .error-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+    .error-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 10px 22px;
+      border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; font-family: var(--font); transition: all 0.15s ease;
+    }
+    .btn-primary { background: var(--gold); color: #0d0f14; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="error-card">
+    <div class="error-logo">ن</div>
+    <div class="error-name">Nadini</div>
+    <div class="error-code">404</div>
+    <h1 class="error-title" id="errorTitle">Seite nicht gefunden</h1>
+    <p class="error-desc" id="errorDesc">Die angeforderte Seite existiert nicht oder wurde verschoben.</p>
+    <div class="error-actions">
+      <a href="landing/index.html" class="btn btn-primary" id="homeBtn">Zur Startseite</a>
+      <a href="app/dashboard.html" class="btn btn-secondary" id="dashBtn">Zum Dashboard</a>
+    </div>
+  </div>
+  <script>
+    // Theme
+    const t = localStorage.getItem("nadini-theme");
+    if (t) document.documentElement.dataset.theme = t;
+
+    // i18n
+    const lang = localStorage.getItem("nadini-lang") || navigator.language.slice(0,2);
+    const i18n = {
+      en: { title: "Page not found", desc: "The requested page does not exist or has been moved.", home: "Go to homepage", dash: "Go to dashboard" },
+      fr: { title: "Page introuvable", desc: "La page demandée n'existe pas ou a été déplacée.", home: "Vers l'accueil", dash: "Vers le tableau de bord" },
+    };
+    if (i18n[lang]) {
+      document.getElementById("errorTitle").textContent = i18n[lang].title;
+      document.getElementById("errorDesc").textContent = i18n[lang].desc;
+      document.getElementById("homeBtn").textContent = i18n[lang].home;
+      document.getElementById("dashBtn").textContent = i18n[lang].dash;
+    }
+  </script>
+</body>
+</html>

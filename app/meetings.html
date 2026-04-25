@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — Meetings</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-nav">Skip to content</a>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="brand-link"><span class="brand-logo">ن</span><span class="brand-name">Nadini</span></a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span data-i18n="dash.nav.dashboard">Dashboard</span>
+      </a>
+      <a href="meetings.html" class="sidebar-item active" aria-current="page">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-i18n="dash.nav.meetings">Meetings</span>
+      </a>
+      <a href="transcripts.html" class="sidebar-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        <span data-i18n="dash.nav.transcripts">Transkripte</span>
+      </a>
+      <a href="languages.html" class="sidebar-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+        <span data-i18n="dash.nav.languages">Sprachen</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="settings.html" class="sidebar-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="dash.nav.settings">Einstellungen</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div class="user-info">
+          <span class="user-email" id="userEmail">alice@example.com</span>
+          <span class="user-role" data-i18n="dash.role.user">Benutzer</span>
+        </div>
+      </div>
+      <button class="sidebar-logout" id="logoutBtn" title="Logout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main" id="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <h1 class="topbar-title" data-i18n="meetings.title">Meetings</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" id="newMeetingBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="meetings.new">Neues Meeting</span>
+        </button>
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <button class="filter-chip filter-active" data-filter="all" data-i18n="meetings.filter.all">Alle</button>
+      <button class="filter-chip" data-filter="upcoming" data-i18n="meetings.filter.upcoming">Geplant</button>
+      <button class="filter-chip" data-filter="done" data-i18n="meetings.filter.done">Abgeschlossen</button>
+    </div>
+
+    <!-- Scheduled -->
+    <section class="meetings-section">
+      <h2 class="section-heading" data-i18n="meetings.upcoming">Geplante Meetings</h2>
+      <div class="meetings-list">
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-upcoming">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Sprint Planning — Mai</h3>
+              <div class="meeting-row-meta">
+                <span>28.04.2026, 10:00</span>
+                <span class="meta-sep">&middot;</span>
+                <span>DE → EN</span>
+                <span class="meta-sep">&middot;</span>
+                <span>5 <span data-i18n="meetings.invited">eingeladen</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-gold" data-i18n="meetings.status.scheduled">Geplant</span>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='meeting.html'" data-i18n="meetings.join">Beitreten</button>
+            <button class="btn-icon-sm" title="Bearbeiten">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-upcoming">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Investor Update — EN/FR</h3>
+              <div class="meeting-row-meta">
+                <span>30.04.2026, 14:00</span>
+                <span class="meta-sep">&middot;</span>
+                <span>EN → DE, FR</span>
+                <span class="meta-sep">&middot;</span>
+                <span>12 <span data-i18n="meetings.invited">eingeladen</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-gold" data-i18n="meetings.status.scheduled">Geplant</span>
+            <button class="btn btn-secondary btn-sm" data-i18n="meetings.edit">Bearbeiten</button>
+            <button class="btn-icon-sm" title="Löschen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Past -->
+    <section class="meetings-section">
+      <h2 class="section-heading" data-i18n="meetings.past">Vergangene Meetings</h2>
+      <div class="meetings-list">
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-done">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Product Review Q2</h3>
+              <div class="meeting-row-meta">
+                <span>25.04.2026</span>
+                <span class="meta-sep">&middot;</span>
+                <span>45 min</span>
+                <span class="meta-sep">&middot;</span>
+                <span>4 <span data-i18n="meetings.participants_label">Teilnehmer</span></span>
+                <span class="meta-sep">&middot;</span>
+                <span>DE → EN, FR</span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-green" data-i18n="dash.status.done">Abgeschlossen</span>
+            <a href="transcript-view.html" class="btn btn-secondary btn-sm" data-i18n="meetings.transcript">Transkript</a>
+          </div>
+        </div>
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-done">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Partner Onboarding — Tokio</h3>
+              <div class="meeting-row-meta">
+                <span>24.04.2026</span>
+                <span class="meta-sep">&middot;</span>
+                <span>1h 20min</span>
+                <span class="meta-sep">&middot;</span>
+                <span>6 <span data-i18n="meetings.participants_label">Teilnehmer</span></span>
+                <span class="meta-sep">&middot;</span>
+                <span>DE → JA, EN</span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-green" data-i18n="dash.status.done">Abgeschlossen</span>
+            <a href="transcript-view.html" class="btn btn-secondary btn-sm" data-i18n="meetings.transcript">Transkript</a>
+          </div>
+        </div>
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-done">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Compliance Sync</h3>
+              <div class="meeting-row-meta">
+                <span>23.04.2026</span>
+                <span class="meta-sep">&middot;</span>
+                <span>30 min</span>
+                <span class="meta-sep">&middot;</span>
+                <span>3 <span data-i18n="meetings.participants_label">Teilnehmer</span></span>
+                <span class="meta-sep">&middot;</span>
+                <span>EN → DE</span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-green" data-i18n="dash.status.done">Abgeschlossen</span>
+            <a href="transcript-view.html" class="btn btn-secondary btn-sm" data-i18n="meetings.transcript">Transkript</a>
+          </div>
+        </div>
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-done">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Sales Call — Paris</h3>
+              <div class="meeting-row-meta">
+                <span>22.04.2026</span>
+                <span class="meta-sep">&middot;</span>
+                <span>55 min</span>
+                <span class="meta-sep">&middot;</span>
+                <span>3 <span data-i18n="meetings.participants_label">Teilnehmer</span></span>
+                <span class="meta-sep">&middot;</span>
+                <span>FR → DE, EN</span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-green" data-i18n="dash.status.done">Abgeschlossen</span>
+            <a href="transcript-view.html" class="btn btn-secondary btn-sm" data-i18n="meetings.transcript">Transkript</a>
+          </div>
+        </div>
+
+        <div class="meeting-row">
+          <div class="meeting-row-left">
+            <div class="meeting-row-icon meeting-row-icon-done">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>
+            </div>
+            <div class="meeting-row-info">
+              <h3>Board Meeting — Q1 Results</h3>
+              <div class="meeting-row-meta">
+                <span>18.04.2026</span>
+                <span class="meta-sep">&middot;</span>
+                <span>2h 10min</span>
+                <span class="meta-sep">&middot;</span>
+                <span>8 <span data-i18n="meetings.participants_label">Teilnehmer</span></span>
+                <span class="meta-sep">&middot;</span>
+                <span>DE → EN, FR, ES</span>
+              </div>
+            </div>
+          </div>
+          <div class="meeting-row-right">
+            <span class="badge badge-green" data-i18n="dash.status.done">Abgeschlossen</span>
+            <a href="transcript-view.html" class="btn btn-secondary btn-sm" data-i18n="meetings.transcript">Transkript</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script src="toast.js"></script>
+  <script src="i18n-app.js"></script>
+  <script src="page-common.js"></script>
+  <script>
+    document.getElementById("newMeetingBtn").addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+  </script>
+</body>
+</html>

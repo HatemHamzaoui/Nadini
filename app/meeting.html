@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — Meeting</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="meeting.css">
+</head>
+<body class="meeting-body">
+
+  <!-- ═══ MEETING TOP BAR ═══ -->
+  <header class="meeting-topbar">
+    <div class="meeting-topbar-left">
+      <a href="dashboard.html" class="brand-link brand-link-sm">
+        <span class="brand-logo">ن</span>
+        <span class="brand-name">Nadini</span>
+      </a>
+      <div class="meeting-topbar-divider"></div>
+      <div class="meeting-title-group">
+        <h1 class="meeting-room-title" id="meetingTitle">Product Review Q2</h1>
+        <div class="meeting-meta-bar">
+          <span class="meeting-status-live">
+            <span class="live-dot"></span>
+            <span>Live</span>
+          </span>
+          <span class="meeting-timer" id="meetingTimer">00:00</span>
+          <span class="meeting-meta-sep">&middot;</span>
+          <span class="meeting-lang-info">DE → EN, FR</span>
+        </div>
+      </div>
+    </div>
+    <div class="meeting-topbar-right">
+      <div class="ai-badge">
+        <span class="ai-dot"></span>
+        <span data-i18n="meeting.ai_active">KI-Übersetzung aktiv</span>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+      </div>
+      <button class="btn btn-danger-sm" id="endMeetingBtn" data-i18n="meeting.end">Meeting beenden</button>
+    </div>
+  </header>
+
+  <!-- ═══ MEETING MAIN ═══ -->
+  <div class="meeting-layout">
+
+    <!-- LEFT: Transcript -->
+    <section class="meeting-transcript-panel">
+      <div class="panel-header">
+        <h2 data-i18n="meeting.transcript">Transkript</h2>
+        <div class="panel-actions">
+          <button class="panel-btn" id="autoScrollBtn" title="Auto-Scroll" aria-label="Auto-Scroll">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </button>
+          <button class="panel-btn" id="downloadBtn" title="Download" aria-label="Transkript herunterladen">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="transcript-container" id="transcriptContainer">
+        <!-- Transcript entries populated by JS -->
+      </div>
+    </section>
+
+    <!-- RIGHT: Controls + Participants -->
+    <aside class="meeting-sidebar">
+
+      <!-- Audio Controls -->
+      <div class="meeting-control-card">
+        <h3 data-i18n="meeting.audio">Audio</h3>
+        <div class="audio-visualizer" id="audioVisualizer" role="img" aria-label="Audio-Pegel">
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div>
+        </div>
+        <div class="audio-controls">
+          <button class="ctrl-btn ctrl-btn-mic active" id="micBtn" title="Mikrofon" aria-label="Mikrofon ein/aus">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <button class="ctrl-btn" id="speakerBtn" title="Lautsprecher" aria-label="Lautsprecher">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+          <div class="volume-slider-wrap">
+            <input type="range" class="volume-slider" id="volumeSlider" aria-label="Lautstärke" min="0" max="100" value="80">
+          </div>
+        </div>
+      </div>
+
+      <!-- Language Channels -->
+      <div class="meeting-control-card">
+        <h3 data-i18n="meeting.channels">Sprachkanäle</h3>
+        <div class="channel-list" id="channelList">
+          <div class="channel-item channel-active" data-channel="original">
+            <div class="channel-info">
+              <span class="channel-flag">🇩🇪</span>
+              <span class="channel-name">Deutsch</span>
+              <span class="channel-tag" data-i18n="meeting.original">Original</span>
+            </div>
+            <div class="channel-indicator">
+              <span class="channel-vol"></span>
+            </div>
+          </div>
+          <div class="channel-item" data-channel="en">
+            <div class="channel-info">
+              <span class="channel-flag">🇬🇧</span>
+              <span class="channel-name">English</span>
+              <span class="channel-tag tag-ai">AI</span>
+            </div>
+            <div class="channel-indicator">
+              <span class="channel-vol"></span>
+            </div>
+          </div>
+          <div class="channel-item" data-channel="fr">
+            <div class="channel-info">
+              <span class="channel-flag">🇫🇷</span>
+              <span class="channel-name">Français</span>
+              <span class="channel-tag tag-ai">AI</span>
+            </div>
+            <div class="channel-indicator">
+              <span class="channel-vol"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Participants -->
+      <div class="meeting-control-card">
+        <div class="card-header-row">
+          <h3 data-i18n="meeting.participants">Teilnehmer</h3>
+          <span class="participant-count" id="participantCount">4</span>
+        </div>
+        <div class="participant-list" id="participantList">
+          <div class="participant-item">
+            <div class="participant-avatar pa-you">A</div>
+            <div class="participant-info">
+              <span class="participant-name">Alice (Du)</span>
+              <span class="participant-lang">DE — Deutsch</span>
+            </div>
+            <div class="participant-status ps-speaking">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
+            </div>
+          </div>
+          <div class="participant-item">
+            <div class="participant-avatar">B</div>
+            <div class="participant-info">
+              <span class="participant-name">Bob</span>
+              <span class="participant-lang">EN — English</span>
+            </div>
+            <div class="participant-status ps-listening"></div>
+          </div>
+          <div class="participant-item">
+            <div class="participant-avatar">C</div>
+            <div class="participant-info">
+              <span class="participant-name">Claire</span>
+              <span class="participant-lang">FR — Français</span>
+            </div>
+            <div class="participant-status ps-listening"></div>
+          </div>
+          <div class="participant-item">
+            <div class="participant-avatar">D</div>
+            <div class="participant-info">
+              <span class="participant-name">Daisuke</span>
+              <span class="participant-lang">EN — English</span>
+            </div>
+            <div class="participant-status ps-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-block btn-sm" id="inviteBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          <span data-i18n="meeting.invite">Teilnehmer einladen</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ��══ BOTTOM CONTROL BAR ═══ -->
+  <footer class="meeting-bottombar">
+    <div class="bottombar-center">
+      <button class="ctrl-btn-round ctrl-btn-mic-main active" id="micMainBtn" title="Mikrofon" aria-label="Mikrofon ein/aus">
+        <svg class="mic-on" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <svg class="mic-off hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.49-.35 2.17"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+      <button class="ctrl-btn-round" id="captionBtn" title="Untertitel" aria-label="Untertitel ein/aus">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 12h2M13 12h4M7 16h10"/></svg>
+      </button>
+      <button class="ctrl-btn-round ctrl-btn-end" id="endBtn" title="Beenden" aria-label="Meeting beenden">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 2.59 3.4z"/></svg>
+      </button>
+    </div>
+    <div class="shortcut-hints">
+      <span class="shortcut-hint"><kbd>M</kbd> Mikrofon</span>
+      <span class="shortcut-hint"><kbd>C</kbd> Untertitel</span>
+      <span class="shortcut-hint"><kbd>D</kbd> Download</span>
+      <span class="shortcut-hint"><kbd>I</kbd> Einladen</span>
+    </div>
+  </footer>
+
+  <!-- ═══ CAPTIONS OVERLAY ═══ -->
+  <div class="captions-overlay hidden" id="captionsOverlay" aria-live="polite" aria-atomic="true">
+    <div class="caption-line" id="captionOriginal">
+      <span class="caption-lang">DE</span>
+      <span class="caption-text"></span>
+    </div>
+    <div class="caption-line caption-line-translated" id="captionTranslated">
+      <span class="caption-lang">EN</span>
+      <span class="caption-text"></span>
+    </div>
+  </div>
+
+  <!-- ═══ INVITE MODAL ═══ -->
+  <div class="modal-overlay hidden" id="inviteModal" role="dialog" aria-modal="true" aria-labelledby="inviteModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="inviteModalTitle" data-i18n="invite.title">Teilnehmer einladen</h2>
+        <button class="modal-close" id="inviteClose">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="invite-link-section">
+          <label data-i18n="invite.link_label">Meeting-Link</label>
+          <div class="invite-link-row">
+            <input type="text" class="form-input form-input-mono" id="inviteLinkInput" value="https://nadini.ai/app/join.html?m=4f8a2c" readonly>
+            <button class="btn btn-primary btn-icon" id="copyLinkBtn" title="Kopieren">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="invite-divider">
+          <span data-i18n="invite.or">oder per E-Mail einladen</span>
+        </div>
+        <div class="invite-email-section">
+          <label data-i18n="invite.email_label">E-Mail-Adressen</label>
+          <textarea class="form-input" id="inviteEmails" rows="3" data-i18n-placeholder="invite.email_placeholder" placeholder="bob@firma.de, claire@example.fr"></textarea>
+          <div class="invite-email-row">
+            <select class="form-input invite-lang-select" id="inviteLang">
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="fr">🇫🇷 Français</option>
+            </select>
+            <button class="btn btn-primary" id="sendInviteBtn" data-i18n="invite.send">Einladung senden</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="toast.js"></script>
+  <script src="i18n-app.js"></script>
+  <script src="meeting.js"></script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — KI-Dolmetschplattform</title>
+  <meta name="description" content="Echtzeit-KI-Übersetzung für Meetings, Konferenzen und Business-Kommunikation. DSGVO-konform, AI-Act-ready.">
+  <link rel="canonical" href="https://nadini.ai">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <meta property="og:title" content="Nadini — KI-Dolmetschplattform">
+  <meta property="og:description" content="Echtzeit-KI-Übersetzung für Meetings. DSGVO & AI-Act-konform.">
+  <meta property="og:url" content="https://nadini.ai">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="#features" class="skip-nav">Skip to content</a>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <span class="nav-logo">ن</span>
+        <span class="nav-name">Nadini</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#features" data-i18n="nav.features">Funktionen</a>
+        <a href="#how-it-works" data-i18n="nav.how">So funktioniert's</a>
+        <a href="#compliance" data-i18n="nav.compliance">Compliance</a>
+        <a href="#pricing" data-i18n="nav.pricing">Preise</a>
+      </div>
+      <div class="nav-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+        </div>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Theme wechseln">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <!-- Mobile Menu -->
+        <button class="nav-hamburger" id="navHamburger" aria-label="Menü">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="../app/login.html" class="btn-cta" data-i18n="nav.cta">Jetzt starten</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge" data-i18n="hero.badge">KI-gestützte Echtzeit-Übersetzung</div>
+      <h1 class="hero-title" data-i18n="hero.title">Sprache verbindet.<br>Nadini übersetzt.</h1>
+      <p class="hero-subtitle" data-i18n="hero.subtitle">Echtzeit-KI-Dolmetschen für Meetings, Konferenzen und Business-Kommunikation — mehrsprachig, sicher, AI-Act-konform.</p>
+      <div class="hero-actions">
+        <a href="../app/login.html" class="btn btn-primary btn-lg" data-i18n="hero.cta_primary">Kostenlos testen</a>
+        <a href="../app/login.html?demo=1" class="btn btn-secondary btn-lg" data-i18n="hero.cta_secondary">Demo ansehen</a>
+      </div>
+      <div class="hero-trust">
+        <span data-i18n="hero.trust">Vertraut von über 200 Unternehmen in Europa</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-demo">
+        <div class="demo-window">
+          <div class="demo-header">
+            <div class="demo-dots"><span></span><span></span><span></span></div>
+            <span class="demo-title">Nadini Meeting</span>
+          </div>
+          <div class="demo-body">
+            <div class="demo-msg demo-msg-original">
+              <span class="demo-lang">DE</span>
+              <span class="demo-text">"Können wir den Launch auf nächste Woche verschieben?"</span>
+            </div>
+            <div class="demo-arrow">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="demo-msg demo-msg-translated">
+              <span class="demo-lang">EN</span>
+              <span class="demo-text">"Can we postpone the launch to next week?"</span>
+            </div>
+            <div class="demo-msg demo-msg-translated demo-msg-fr">
+              <span class="demo-lang">FR</span>
+              <span class="demo-text">"Peut-on reporter le lancement à la semaine prochaine ?"</span>
+            </div>
+            <div class="demo-indicator">
+              <span class="demo-dot-live"></span>
+              <span data-i18n="hero.demo_live">Live — 120 ms Latenz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LOGOS ═══ -->
+  <section class="logos-section">
+    <div class="container">
+      <div class="logos-row">
+        <div class="logo-placeholder">Enterprise A</div>
+        <div class="logo-placeholder">Universität B</div>
+        <div class="logo-placeholder">Konzern C</div>
+        <div class="logo-placeholder">Startup D</div>
+        <div class="logo-placeholder">NGO E</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURES ═══ -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label" data-i18n="features.label">Funktionen</span>
+        <h2 class="section-title" data-i18n="features.title">Alles, was Ihre mehrsprachige Kommunikation braucht</h2>
+        <p class="section-subtitle" data-i18n="features.subtitle">Nadini vereint modernste KI-Modelle mit einer sicheren, europäischen Infrastruktur.</p>
+      </div>
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 18.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/><circle cx="12" cy="12" r="2.5"/></svg>
+          </div>
+          <h3 data-i18n="features.f1.title">Echtzeit-Übersetzung</h3>
+          <p data-i18n="features.f1.desc">Simultandolmetschen mit unter 200 ms Latenz. Sprechen Sie, während Ihre Teilnehmer in ihrer Sprache mithören.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <h3 data-i18n="features.f2.title">DSGVO & AI Act</h3>
+          <p data-i18n="features.f2.desc">Vollständig konform mit der EU-DSGVO und dem AI Act Art. 50. Transparenz-Disclosures, Audit-Logs, Datenhoheit in der EU.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 data-i18n="features.f3.title">Unbegrenzte Teilnehmer</h3>
+          <p data-i18n="features.f3.desc">Meetings, Konferenzen, Webinare — egal ob 2 oder 2.000 Teilnehmer. Skaliert automatisch mit Ihrem Bedarf.</p>
+        </div>
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+          </div>
+          <h3 data-i18n="features.f4.title">30+ Sprachen</h3>
+          <p data-i18n="features.f4.desc">Von Deutsch und Englisch bis Arabisch, Mandarin und Japanisch. Ständig wachsende Sprachunterstützung durch mehrere KI-Modelle.</p>
+        </div>
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="m6 8 2 2 4-4"/></svg>
+          </div>
+          <h3 data-i18n="features.f5.title">Passwortlose Anmeldung</h3>
+          <p data-i18n="features.f5.desc">Magic-Link-Login per E-Mail — kein Passwort nötig. Sicher durch RS256-JWT, Token-Rotation und automatische Sperre.</p>
+        </div>
+        <!-- Feature 6 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+          </div>
+          <h3 data-i18n="features.f6.title">API & Integration</h3>
+          <p data-i18n="features.f6.desc">RESTful API, WebSocket-Streaming, JWKS-Endpunkt. Integrieren Sie Nadini nahtlos in Ihre bestehende Infrastruktur.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="section section-alt" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label" data-i18n="how.label">So funktioniert's</span>
+        <h2 class="section-title" data-i18n="how.title">In drei Schritten zum mehrsprachigen Meeting</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 data-i18n="how.s1.title">Anmelden per Magic Link</h3>
+          <p data-i18n="how.s1.desc">Geben Sie Ihre E-Mail-Adresse ein und klicken Sie den Link in Ihrem Postfach. Kein Passwort, kein Aufwand.</p>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 data-i18n="how.s2.title">Meeting starten</h3>
+          <p data-i18n="how.s2.desc">Erstellen Sie ein Meeting und laden Sie Teilnehmer ein. Jeder wählt seine bevorzugte Sprache.</p>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 data-i18n="how.s3.title">Sprechen & verstehen</h3>
+          <p data-i18n="how.s3.desc">Sprechen Sie frei — Nadini übersetzt in Echtzeit für alle Teilnehmer. Transkript inklusive.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COMPLIANCE ═══ -->
+  <section class="section" id="compliance">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label" data-i18n="compliance.label">Vertrauen & Compliance</span>
+        <h2 class="section-title" data-i18n="compliance.title">Gebaut für europäische Standards</h2>
+        <p class="section-subtitle" data-i18n="compliance.subtitle">Nadini erfüllt die strengsten regulatorischen Anforderungen — by design, nicht als Nachgedanke.</p>
+      </div>
+      <div class="compliance-grid">
+        <div class="compliance-card">
+          <div class="compliance-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+          </div>
+          <h3>AI Act Art. 50</h3>
+          <p data-i18n="compliance.c1.desc">Transparente KI-Disclosure mit versionierten Texten, Pflichtbestätigung und dauerhafter Archivierung.</p>
+          <span class="compliance-status compliance-done" data-i18n="compliance.status.done">Implementiert</span>
+        </div>
+        <div class="compliance-card">
+          <div class="compliance-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>DSGVO</h3>
+          <p data-i18n="compliance.c2.desc">Datenverarbeitung in der EU. Auftragsverarbeitungsverträge, Löschfristen, Audit-Rechte — alles geregelt.</p>
+          <span class="compliance-status compliance-done" data-i18n="compliance.status.done">Implementiert</span>
+        </div>
+        <div class="compliance-card">
+          <div class="compliance-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+          </div>
+          <h3 data-i18n="compliance.c3.title">Audit-Logging</h3>
+          <p data-i18n="compliance.c3.desc">Kategorisierte Audit-Logs mit konfigurierbarer Aufbewahrung. Compliance-Logs permanent, Standardlogs regelbasiert.</p>
+          <span class="compliance-status compliance-done" data-i18n="compliance.status.done">Implementiert</span>
+        </div>
+        <div class="compliance-card">
+          <div class="compliance-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 data-i18n="compliance.c4.title">Hybrid-Risk-Tier</h3>
+          <p data-i18n="compliance.c4.desc">Standard- und Hochrisiko-Tenants mit getrennten Compliance-Anforderungen. Nahtlose Eskalation ohne Architekturbruch.</p>
+          <span class="compliance-status compliance-ready" data-i18n="compliance.status.ready">Bereit</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PRICING ═══ -->
+  <section class="section section-alt" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label" data-i18n="pricing.label">Preise</span>
+        <h2 class="section-title" data-i18n="pricing.title">Transparent und fair</h2>
+        <p class="section-subtitle" data-i18n="pricing.subtitle">Starten Sie kostenlos, skalieren Sie nach Bedarf.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3 data-i18n="pricing.free.name">Starter</h3>
+          <div class="pricing-price"><span class="pricing-amount">0 €</span><span class="pricing-period" data-i18n="pricing.period">/Monat</span></div>
+          <ul class="pricing-features">
+            <li data-i18n="pricing.free.f1">5 Stunden/Monat</li>
+            <li data-i18n="pricing.free.f2">Bis zu 5 Teilnehmer</li>
+            <li data-i18n="pricing.free.f3">10 Sprachen</li>
+            <li data-i18n="pricing.free.f4">Standard-Support</li>
+          </ul>
+          <a href="../app/login.html" class="btn btn-secondary btn-block" data-i18n="pricing.free.cta">Kostenlos starten</a>
+        </div>
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-popular" data-i18n="pricing.popular">Beliebt</div>
+          <h3 data-i18n="pricing.pro.name">Business</h3>
+          <div class="pricing-price"><span class="pricing-amount">49 €</span><span class="pricing-period" data-i18n="pricing.period">/Monat</span></div>
+          <ul class="pricing-features">
+            <li data-i18n="pricing.pro.f1">Unbegrenzte Stunden</li>
+            <li data-i18n="pricing.pro.f2">Unbegrenzte Teilnehmer</li>
+            <li data-i18n="pricing.pro.f3">30+ Sprachen</li>
+            <li data-i18n="pricing.pro.f4">API-Zugang</li>
+            <li data-i18n="pricing.pro.f5">Prioritäts-Support</li>
+          </ul>
+          <a href="../app/login.html" class="btn btn-primary btn-block" data-i18n="pricing.pro.cta">Business wählen</a>
+        </div>
+        <div class="pricing-card">
+          <h3 data-i18n="pricing.ent.name">Enterprise</h3>
+          <div class="pricing-price"><span class="pricing-amount" data-i18n="pricing.ent.amount">Individuell</span></div>
+          <ul class="pricing-features">
+            <li data-i18n="pricing.ent.f1">Alles aus Business</li>
+            <li data-i18n="pricing.ent.f2">Hochrisiko-Compliance</li>
+            <li data-i18n="pricing.ent.f3">Dedizierte Infrastruktur</li>
+            <li data-i18n="pricing.ent.f4">SLA & Onboarding</li>
+            <li data-i18n="pricing.ent.f5">AVV & FRIA-Support</li>
+          </ul>
+          <a href="../app/login.html" class="btn btn-secondary btn-block" data-i18n="pricing.ent.cta">Kontakt aufnehmen</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section class="section cta-section" id="cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2 data-i18n="cta.title">Bereit für mehrsprachige Meetings?</h2>
+        <p data-i18n="cta.subtitle">Starten Sie jetzt kostenlos — kein Passwort, keine Kreditkarte, keine Verpflichtung.</p>
+        <form class="cta-form" id="ctaForm">
+          <input type="email" class="cta-input" placeholder="ihre@email.de" data-i18n-placeholder="cta.placeholder" required>
+          <button type="submit" class="btn btn-primary btn-lg" data-i18n="cta.button">Magic Link senden</button>
+        </form>
+        <p class="cta-hint" data-i18n="cta.hint">Wir senden Ihnen einen Anmeldelink per E-Mail. Kein Passwort nötig.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-brand">
+            <span class="nav-logo">ن</span>
+            <span class="nav-name">Nadini</span>
+          </div>
+          <p class="footer-desc" data-i18n="footer.desc">KI-Echtzeit-Dolmetschen für die vernetzte Welt. Sicher, konform, europäisch.</p>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer.product">Produkt</h4>
+          <a href="#features" data-i18n="nav.features">Funktionen</a>
+          <a href="#pricing" data-i18n="nav.pricing">Preise</a>
+          <a href="#" data-i18n="footer.docs">Dokumentation</a>
+          <a href="#" data-i18n="footer.api">API-Referenz</a>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer.legal">Rechtliches</h4>
+          <a href="#" data-i18n="footer.privacy">Datenschutz</a>
+          <a href="#" data-i18n="footer.imprint">Impressum</a>
+          <a href="#" data-i18n="footer.terms">AGB</a>
+          <a href="#" data-i18n="footer.aup">Nutzungsrichtlinien</a>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer.company">Unternehmen</h4>
+          <a href="#" data-i18n="footer.about">Über uns</a>
+          <a href="#" data-i18n="footer.contact">Kontakt</a>
+          <a href="#" data-i18n="footer.blog">Blog</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Nadini — LexAdQ GmbH. <span data-i18n="footer.rights">Alle Rechte vorbehalten.</span></span>
+        <span class="footer-location">Braunschweig, Deutschland 🇪🇺</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("../sw.js").catch(()=>{});</script>
+</body>
+</html>

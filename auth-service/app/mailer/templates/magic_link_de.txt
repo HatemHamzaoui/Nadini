@@ -1,0 +1,8 @@
+Anmeldung bei MeetPlatform
+
+Klicken Sie auf den folgenden Link, um sich anzumelden.
+Der Link ist 5 Minuten gültig und kann nur einmal verwendet werden.
+
+{{ link }}
+
+Falls Sie diese E-Mail nicht angefordert haben, können Sie sie ignorieren.

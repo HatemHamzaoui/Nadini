@@ -1,0 +1,31 @@
+# ── Secrets (NEVER commit) ──
+auth-service/secrets/
+*.pem
+.env
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# ── Node ──
+node_modules/
+
+# ── Docker ──
+postgres_data/
+
+# ── IDE ──
+.idea/
+.vscode/
+*.iml
+.kotlin
+out/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Build ──
+dist/

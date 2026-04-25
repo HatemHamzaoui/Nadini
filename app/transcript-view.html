@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nadini — Transkript</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#0e4243">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="meeting.css">
+</head>
+<body>
+
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="tv-topbar">
+    <div class="tv-topbar-left">
+      <a href="transcripts.html" class="btn-back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </a>
+      <div class="tv-title-group">
+        <h1>Product Review Q2</h1>
+        <div class="tv-meta">
+          <span>25.04.2026</span>
+          <span class="meta-sep">&middot;</span>
+          <span>45 min</span>
+          <span class="meta-sep">&middot;</span>
+          <span>4 <span data-i18n="meetings.participants_label">Teilnehmer</span></span>
+          <span class="meta-sep">&middot;</span>
+          <span>DE → EN, FR</span>
+          <span class="meta-sep">&middot;</span>
+          <span>1.247 <span data-i18n="transcripts.words">Wörter</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="tv-topbar-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="de">DE</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="tv-export-group">
+        <button class="btn btn-secondary btn-sm" id="exportTxt">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          TXT
+        </button>
+        <button class="btn btn-secondary btn-sm" id="exportPdf">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ LAYOUT ═══ -->
+  <div class="tv-layout">
+
+    <!-- Transcript Body -->
+    <main class="tv-main">
+      <!-- Language Filter -->
+      <div class="tv-lang-filter">
+        <span class="tv-filter-label" data-i18n="tv.show_lang">Sprache anzeigen:</span>
+        <button class="filter-chip filter-active" data-show="all" data-i18n="tv.all">Alle</button>
+        <button class="filter-chip" data-show="de">🇩🇪 DE</button>
+        <button class="filter-chip" data-show="en">🇬🇧 EN</button>
+        <button class="filter-chip" data-show="fr">🇫🇷 FR</button>
+      </div>
+
+      <div class="tv-transcript" id="tvTranscript">
+
+        <div class="tv-entry" data-lang-group="de">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Alice</span>
+            <span class="tv-time">00:05</span>
+            <span class="transcript-lang-tag tag-original">DE · Original</span>
+          </div>
+          <p class="tv-text">Guten Morgen zusammen! Können wir mit dem Product Review starten?</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="en"><span class="translation-flag">🇬🇧</span><span class="translation-text">Good morning everyone! Can we start with the product review?</span></div>
+            <div class="tv-translation" data-lang-group="fr"><span class="translation-flag">🇫🇷</span><span class="translation-text">Bonjour à tous ! On peut commencer la revue produit ?</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="en">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Bob</span>
+            <span class="tv-time">00:12</span>
+            <span class="transcript-lang-tag tag-translated">EN · AI</span>
+          </div>
+          <p class="tv-text">Sure, I've prepared the Q2 metrics. Let me share my screen.</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="de"><span class="translation-flag">🇩🇪</span><span class="translation-text">Klar, ich habe die Q2-Kennzahlen vorbereitet. Lass mich meinen Bildschirm teilen.</span></div>
+            <div class="tv-translation" data-lang-group="fr"><span class="translation-flag">🇫🇷</span><span class="translation-text">Bien sûr, j'ai préparé les métriques du T2. Je partage mon écran.</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="fr">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Claire</span>
+            <span class="tv-time">00:25</span>
+            <span class="transcript-lang-tag tag-translated">FR · AI</span>
+          </div>
+          <p class="tv-text">Parfait. J'aimerais aussi aborder la question du nouveau marché DACH.</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="de"><span class="translation-flag">🇩🇪</span><span class="translation-text">Perfekt. Ich möchte auch die Frage des neuen DACH-Marktes ansprechen.</span></div>
+            <div class="tv-translation" data-lang-group="en"><span class="translation-flag">🇬🇧</span><span class="translation-text">Perfect. I'd also like to address the question of the new DACH market.</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="de">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Alice</span>
+            <span class="tv-time">00:38</span>
+            <span class="transcript-lang-tag tag-original">DE · Original</span>
+          </div>
+          <p class="tv-text">Guter Punkt, Claire. Die Expansion nach Österreich und Schweiz ist für Q3 geplant.</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="en"><span class="translation-flag">🇬🇧</span><span class="translation-text">Good point, Claire. The expansion to Austria and Switzerland is planned for Q3.</span></div>
+            <div class="tv-translation" data-lang-group="fr"><span class="translation-flag">🇫🇷</span><span class="translation-text">Bon point, Claire. L'expansion vers l'Autriche et la Suisse est prévue pour le T3.</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="en">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Bob</span>
+            <span class="tv-time">00:52</span>
+            <span class="transcript-lang-tag tag-translated">EN · AI</span>
+          </div>
+          <p class="tv-text">The conversion rate improved by 18% since we launched the real-time translation feature.</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="de"><span class="translation-flag">🇩🇪</span><span class="translation-text">Die Conversion-Rate hat sich seit dem Launch der Echtzeit-Übersetzung um 18% verbessert.</span></div>
+            <div class="tv-translation" data-lang-group="fr"><span class="translation-flag">🇫🇷</span><span class="translation-text">Le taux de conversion a augmenté de 18% depuis le lancement de la traduction en temps réel.</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="fr">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Claire</span>
+            <span class="tv-time">01:08</span>
+            <span class="transcript-lang-tag tag-translated">FR · AI</span>
+          </div>
+          <p class="tv-text">Impressionnant ! Est-ce que les clients francophones ont donné des retours spécifiques ?</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="de"><span class="translation-flag">🇩🇪</span><span class="translation-text">Beeindruckend! Haben die französischsprachigen Kunden spezifisches Feedback gegeben?</span></div>
+            <div class="tv-translation" data-lang-group="en"><span class="translation-flag">🇬🇧</span><span class="translation-text">Impressive! Have the French-speaking customers given specific feedback?</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="de">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Alice</span>
+            <span class="tv-time">01:22</span>
+            <span class="transcript-lang-tag tag-original">DE · Original</span>
+          </div>
+          <p class="tv-text">Ja, besonders die niedrige Latenz wird gelobt. Unter 200 Millisekunden ist ein Gamechanger.</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="en"><span class="translation-flag">🇬🇧</span><span class="translation-text">Yes, the low latency is especially praised. Under 200 milliseconds is a game changer.</span></div>
+            <div class="tv-translation" data-lang-group="fr"><span class="translation-flag">🇫🇷</span><span class="translation-text">Oui, la faible latence est particulièrement saluée. Moins de 200 ms, c'est un changement majeur.</span></div>
+          </div>
+        </div>
+
+        <div class="tv-entry" data-lang-group="en">
+          <div class="tv-entry-header">
+            <span class="tv-speaker">Daisuke</span>
+            <span class="tv-time">01:40</span>
+            <span class="transcript-lang-tag tag-translated">EN · AI</span>
+          </div>
+          <p class="tv-text">I can confirm that from the Japan market — our clients there are very happy with the quality.</p>
+          <div class="tv-translations">
+            <div class="tv-translation" data-lang-group="de"><span class="translation-flag">🇩🇪</span><span class="translation-text">Das kann ich vom japanischen Markt bestätigen — unsere Kunden dort sind sehr zufrieden mit der Qualität.</span></div>
+            <div class="tv-translation" data-lang-group="fr"><span class="translation-flag">🇫🇷</span><span class="translation-text">Je confirme depuis le marché japonais — nos clients là-bas sont très satisfaits de la qualité.</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- AI Provenance Footer -->
+      <div class="tv-provenance">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span data-i18n="tv.provenance">Übersetzungen wurden durch KI-Modelle erstellt und als solche markiert (Art. 50 AI Act).</span>
+      </div>
+    </main>
+
+    <!-- Sidebar: Participants + Info -->
+    <aside class="tv-sidebar">
+      <div class="meeting-control-card">
+        <div class="card-header-row">
+          <h3 data-i18n="meeting.participants">Teilnehmer</h3>
+          <span class="participant-count">4</span>
+        </div>
+        <div class="participant-list">
+          <div class="participant-item">
+            <div class="participant-avatar pa-you">A</div>
+            <div class="participant-info"><span class="participant-name">Alice</span><span class="participant-lang">DE — Deutsch</span></div>
+          </div>
+          <div class="participant-item">
+            <div class="participant-avatar">B</div>
+            <div class="participant-info"><span class="participant-name">Bob</span><span class="participant-lang">EN — English</span></div>
+          </div>
+          <div class="participant-item">
+            <div class="participant-avatar">C</div>
+            <div class="participant-info"><span class="participant-name">Claire</span><span class="participant-lang">FR — Français</span></div>
+          </div>
+          <div class="participant-item">
+            <div class="participant-avatar">D</div>
+            <div class="participant-info"><span class="participant-name">Daisuke</span><span class="participant-lang">EN — English</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="meeting-control-card">
+        <h3 data-i18n="tv.details">Details</h3>
+        <div class="tv-detail-list">
+          <div class="tv-detail"><span class="tv-detail-label" data-i18n="tv.date">Datum</span><span>25.04.2026, 09:00</span></div>
+          <div class="tv-detail"><span class="tv-detail-label" data-i18n="tv.duration">Dauer</span><span>45 min</span></div>
+          <div class="tv-detail"><span class="tv-detail-label" data-i18n="tv.source_lang">Quellsprache</span><span>Deutsch</span></div>
+          <div class="tv-detail"><span class="tv-detail-label" data-i18n="tv.target_langs">Zielsprachen</span><span>EN, FR</span></div>
+          <div class="tv-detail"><span class="tv-detail-label" data-i18n="tv.word_count">Wörter</span><span>1.247</span></div>
+          <div class="tv-detail"><span class="tv-detail-label" data-i18n="tv.ai_model">KI-Modell</span><span>Voxtral v2</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="toast.js"></script>
+  <script src="i18n-app.js"></script>
+  <script>
+    // Theme
+    const saved = localStorage.getItem("nadini-theme");
+    if (saved) document.documentElement.dataset.theme = saved;
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const next = (document.documentElement.dataset.theme || "dark") === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("nadini-theme", next);
+    });
+
+    // Language filter
+    document.querySelectorAll(".tv-lang-filter .filter-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".tv-lang-filter .filter-chip").forEach(c => c.classList.remove("filter-active"));
+        chip.classList.add("filter-active");
+        const show = chip.dataset.show;
+
+        document.querySelectorAll(".tv-entry").forEach(entry => {
+          entry.style.display = (show === "all" || entry.dataset.langGroup === show) ? "" : "none";
+        });
+
+        document.querySelectorAll(".tv-translation").forEach(t => {
+          t.style.display = (show === "all") ? "" : "none";
+        });
+      });
+    });
+
+    // ── Export: build transcript text from DOM ──
+    function buildTranscriptText() {
+      const lines = [];
+      lines.push("═══════════════════════════════════════════");
+      lines.push("NADINI — Transkript");
+      lines.push("═══════════════════════════════════════════");
+      lines.push("Meeting:     Product Review Q2");
+      lines.push("Datum:       25.04.2026, 09:00");
+      lines.push("Dauer:       45 min");
+      lines.push("Sprachen:    DE → EN, FR");
+      lines.push("Teilnehmer:  Alice, Bob, Claire, Daisuke");
+      lines.push("KI-Modell:   Voxtral v2");
+      lines.push("═══════════════════════════════════════════\n");
+
+      document.querySelectorAll(".tv-entry").forEach(entry => {
+        const speaker = entry.querySelector(".tv-speaker")?.textContent || "";
+        const time = entry.querySelector(".tv-time")?.textContent || "";
+        const tag = entry.querySelector(".transcript-lang-tag")?.textContent || "";
+        const text = entry.querySelector(".tv-text")?.textContent || "";
+
+        lines.push(`[${time}] ${speaker} (${tag.trim()})`);
+        lines.push(text);
+
+        entry.querySelectorAll(".tv-translation").forEach(t => {
+          const flag = t.querySelector(".translation-flag")?.textContent || "";
+          const tText = t.querySelector(".translation-text")?.textContent || "";
+          lines.push(`  ${flag} ${tText}`);
+        });
+        lines.push("");
+      });
+
+      lines.push("───────────────────────────────────────────");
+      lines.push("Übersetzungen wurden durch KI-Modelle erstellt");
+      lines.push("und als solche markiert (Art. 50 AI Act).");
+      lines.push("───────────────────────────────────────────");
+      lines.push("Exportiert von Nadini — nadini.ai");
+
+      return lines.join("\n");
+    }
+
+    function downloadFile(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // TXT Export
+    document.getElementById("exportTxt").addEventListener("click", () => {
+      const text = buildTranscriptText();
+      downloadFile(text, "nadini-transkript-product-review-q2.txt", "text/plain;charset=utf-8");
+      if (typeof toast !== "undefined") toast.success("TXT-Transkript heruntergeladen");
+    });
+
+    // PDF Export (HTML-based print)
+    document.getElementById("exportPdf").addEventListener("click", () => {
+      const text = buildTranscriptText();
+      const printWin = window.open("", "_blank");
+      printWin.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Nadini Transkript</title>
+        <style>
+          body { font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.8; padding: 40px; color: #111; max-width: 700px; margin: 0 auto; }
+          pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; }
+          @media print { body { padding: 20px; } }
+        </style></head><body><pre>${text.replace(/</g, "&lt;")}</pre>
+        <script>window.print(); setTimeout(() => window.close(), 500);<\/script></body></html>`);
+      printWin.document.close();
+
+      if (typeof toast !== "undefined") toast.success("PDF-Export gestartet");
+    });
+
+    // Lang switcher
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => { if (typeof setLanguage === "function") setLanguage(btn.dataset.lang); });
+    });
+    const savedLang = localStorage.getItem("nadini-lang");
+    if (savedLang && typeof setLanguage === "function") setLanguage(savedLang);
+  </script>
+</body>
+</html>

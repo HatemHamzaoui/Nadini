@@ -1,0 +1,65 @@
+name: meetplatform-auth
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: meetplatform
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d meetplatform"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_ENV: development
+      LOG_FORMAT: console
+      DATABASE_URL: postgresql+asyncpg://admin:devpass@postgres:5432/meetplatform
+      REDIS_URL: redis://redis:6379/0
+      JWT_PRIVATE_KEY_PATH: /secrets/jwt-private.pem
+      JWT_PUBLIC_KEY_PATH: /secrets/jwt-public.pem
+      JWT_ISSUER: http://localhost:8001
+      JWT_AUDIENCE: meetplatform
+      MAGIC_LINK_BASE_URL: http://localhost:8001
+      MAILER_DRIVER: ${MAILER_DRIVER:-console}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: no-reply@meetplatform.local
+      MAIL_FROM_NAME: MeetPlatform
+      CORS_ORIGINS: http://localhost:3000,http://localhost:8080
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./secrets:/secrets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8001 --proxy-headers
+      "
+
+volumes:
+  postgres_data:

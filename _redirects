@@ -1,0 +1,6 @@
+# Netlify redirects
+/         /landing/index.html   200
+/login    /app/login.html       200
+/app      /app/dashboard.html   200
+/join/*   /app/join.html        200
+/*        /404.html             404
