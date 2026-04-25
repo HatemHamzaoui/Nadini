@@ -13,7 +13,6 @@ from httpx import ASGITransport, AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-
 # Detect CI: if DATABASE_URL is already set, skip testcontainers
 USE_TESTCONTAINERS = "DATABASE_URL" not in os.environ
 

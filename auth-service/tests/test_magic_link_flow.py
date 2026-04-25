@@ -5,7 +5,6 @@ Mailer ist auf 'console' — Token wird direkt aus der DB gelesen.
 """
 from __future__ import annotations
 
-import asyncio
 import hashlib
 
 import pytest
@@ -14,7 +13,6 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from app.db.models import (
-    AIDisclosureAcknowledgment,
     AuditLog,
     MagicLinkToken,
     RefreshToken,
