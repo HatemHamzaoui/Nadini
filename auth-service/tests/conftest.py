@@ -1,7 +1,6 @@
 """Test-Fixtures: Postgres + Redis via testcontainers (lokal) oder Env-Vars (CI)."""
 from __future__ import annotations
 
-import asyncio
 import os
 import subprocess
 import tempfile
@@ -17,13 +16,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 # Detect CI: if DATABASE_URL is already set, skip testcontainers
 USE_TESTCONTAINERS = "DATABASE_URL" not in os.environ
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> Iterator[asyncio.AbstractEventLoop]:
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest.fixture(scope="session")
