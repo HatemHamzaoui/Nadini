@@ -70,13 +70,15 @@
 
       try {
         if (cfg.API_MODE === "live" && token && token !== "demo-access-token") {
-          await fetch(`${cfg.AUTH_API_BASE}/auth/ai-disclosure/acknowledge`, {
+          const res = await fetch(`${cfg.AUTH_API_BASE}/auth/ai-disclosure/acknowledge`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${token}`,
             },
+            body: JSON.stringify({ version: "2026-04-25", locale: lang }),
           });
+          if (!res.ok && res.status !== 201) throw new Error("ack_failed");
         } else {
           await new Promise(r => setTimeout(r, 600));
         }
