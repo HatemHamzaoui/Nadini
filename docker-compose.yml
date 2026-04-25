@@ -44,7 +44,7 @@ services:
       JWT_PUBLIC_KEY_PATH: /secrets/jwt-public.pem
       JWT_ISSUER: http://localhost:8001
       JWT_AUDIENCE: nadini
-      MAGIC_LINK_BASE_URL: http://localhost:3000/app/login.html
+      MAGIC_LINK_BASE_URL: http://localhost:3000/app
       MAILER_DRIVER: console
       MAIL_FROM: no-reply@nadini.ai
       MAIL_FROM_NAME: Nadini
@@ -68,7 +68,7 @@ services:
   frontend:
     image: nginx:alpine
     ports:
-      - "3000:80"
+      - "${FRONTEND_PORT:-3000}:80"
     volumes:
       - ./landing:/usr/share/nginx/html/landing:ro
       - ./app:/usr/share/nginx/html/app:ro

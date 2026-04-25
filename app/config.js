@@ -20,8 +20,8 @@ const NADINI_CONFIG = (function () {
     return { API_MODE: "demo", AUTH_API_BASE: "" };
   }
 
-  // Docker dev: nginx on port 3000 proxies /auth/* to auth-service
-  if (host === "localhost" && port === "3000") {
+  // Docker dev: nginx proxies /auth/* to auth-service
+  if (host === "localhost" && (port === "3000" || port === "3001")) {
     return { API_MODE: "live", AUTH_API_BASE: "" };
   }
 
