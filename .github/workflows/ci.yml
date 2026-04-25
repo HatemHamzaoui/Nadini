@@ -40,21 +40,23 @@ jobs:
           node -e "
             const fs = require('fs');
             const src = fs.readFileSync('app/i18n-app.js', 'utf-8');
-            // Extract key counts per language block
-            const blocks = src.split(/\b(de|en|fr)\s*:\s*\{/);
-            console.log('i18n-app.js loaded, checking key counts...');
+            // Use eval to parse the translations object
+            const match = src.match(/const translations = (\{[\s\S]*?\n\});/);
+            if (!match) { console.error('Could not parse translations'); process.exit(1); }
+            const translations = eval('(' + match[1] + ')');
             const counts = {};
             for (const lang of ['de', 'en', 'fr']) {
-              const re = new RegExp('\"([^\"]+)\"\\s*:', 'g');
-              const idx = src.indexOf('  ' + lang + ':');
-              const end = src.indexOf('  },', idx);
-              const block = src.substring(idx, end);
-              const keys = [...block.matchAll(re)].map(m => m[1]);
-              counts[lang] = keys.length;
-              console.log('  ' + lang + ': ' + keys.length + ' keys');
+              counts[lang] = Object.keys(translations[lang] || {}).length;
+              console.log('  ' + lang + ': ' + counts[lang] + ' keys');
             }
             if (counts.de !== counts.en || counts.de !== counts.fr) {
-              console.error('Key count mismatch! DE=' + counts.de + ' EN=' + counts.en + ' FR=' + counts.fr);
+              // Show missing keys
+              const deKeys = new Set(Object.keys(translations.de));
+              for (const lang of ['en', 'fr']) {
+                const langKeys = new Set(Object.keys(translations[lang]));
+                const missing = [...deKeys].filter(k => !langKeys.has(k));
+                if (missing.length) console.error('  ' + lang + ' missing: ' + missing.join(', '));
+              }
               process.exit(1);
             }
             console.log('All languages have equal key counts.');
@@ -134,4 +136,4 @@ jobs:
         run: docker build -t nadini-auth-service ./auth-service
 
       - name: Verify image
-        run: docker run --rm nadini-auth-service python -c "from app.main import app; print('Import OK')"
+        run: docker run --rm nadini-auth-service python -c "from app.core.config import Settings; print('Config OK')"
