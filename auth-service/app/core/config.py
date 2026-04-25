@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    app_name: str = "meetplatform-auth"
+    app_name: str = "nadini-auth"
     app_env: Literal["development", "staging", "production"] = "development"
     app_host: str = "0.0.0.0"
     app_port: int = 8001
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     jwt_private_key_path: Path
     jwt_public_key_path: Path
     jwt_issuer: str
-    jwt_audience: str = "meetplatform"
+    jwt_audience: str = "nadini"
     access_token_ttl_seconds: int = 900
     refresh_token_ttl_seconds: int = 2_592_000
 
@@ -52,8 +52,8 @@ class Settings(BaseSettings):
     # Mailer
     mailer_driver: Literal["resend", "console"] = "resend"
     resend_api_key: str = ""
-    mail_from: str = "no-reply@meetplatform.local"
-    mail_from_name: str = "MeetPlatform"
+    mail_from: str = "no-reply@nadini.ai"
+    mail_from_name: str = "Nadini"
 
     # CORS
     cors_origins: str = "http://localhost:3000"

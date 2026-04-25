@@ -1,6 +1,6 @@
-# MeetPlatform Auth Service
+# Nadini Auth Service
 
-Magic-Link-Authentifizierung mit AI-Act-Compliance-Hooks für die KI-Dolmetsch-Plattform.
+Magic-Link-Authentifizierung mit AI-Act-Compliance-Hooks für die KI-Dolmetsch-Plattform Nadini.
 
 - **Stack:** Python 3.12, FastAPI, SQLAlchemy 2 (async), Alembic, PostgreSQL 16, Redis 7, Resend
 - **Auth-Verfahren:** Magic Link (passwortlos, 5-Minuten-TTL, Single-Use)

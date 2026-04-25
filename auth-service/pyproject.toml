@@ -1,5 +1,5 @@
 [project]
-name = "meetplatform-auth"
+name = "nadini-auth"
 version = "0.1.0"
 description = "Auth Service mit Magic Link Login für die KI-Dolmetsch-Plattform"
 requires-python = ">=3.12"

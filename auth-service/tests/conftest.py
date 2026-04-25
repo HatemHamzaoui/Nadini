@@ -83,7 +83,7 @@ def configure_env(
         "JWT_PRIVATE_KEY_PATH": str(priv),
         "JWT_PUBLIC_KEY_PATH": str(pub),
         "JWT_ISSUER": "http://test",
-        "JWT_AUDIENCE": "meetplatform-test",
+        "JWT_AUDIENCE": "nadini-test",
         "MAGIC_LINK_BASE_URL": "http://test",
         "MAILER_DRIVER": "console",
         "MAIL_FROM": "test@test.local",

@@ -1,10 +1,10 @@
-name: meetplatform-auth
+name: nadini-auth
 
 services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: meetplatform
+      POSTGRES_DB: nadini
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: devpass
     ports:
@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d meetplatform"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d nadini"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -34,17 +34,17 @@ services:
     environment:
       APP_ENV: development
       LOG_FORMAT: console
-      DATABASE_URL: postgresql+asyncpg://admin:devpass@postgres:5432/meetplatform
+      DATABASE_URL: postgresql+asyncpg://admin:devpass@postgres:5432/nadini
       REDIS_URL: redis://redis:6379/0
       JWT_PRIVATE_KEY_PATH: /secrets/jwt-private.pem
       JWT_PUBLIC_KEY_PATH: /secrets/jwt-public.pem
       JWT_ISSUER: http://localhost:8001
-      JWT_AUDIENCE: meetplatform
+      JWT_AUDIENCE: nadini
       MAGIC_LINK_BASE_URL: http://localhost:8001
       MAILER_DRIVER: ${MAILER_DRIVER:-console}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
-      MAIL_FROM: no-reply@meetplatform.local
-      MAIL_FROM_NAME: MeetPlatform
+      MAIL_FROM: no-reply@nadini.ai
+      MAIL_FROM_NAME: Nadini
       CORS_ORIGINS: http://localhost:3000,http://localhost:8080
     ports:
       - "8001:8001"

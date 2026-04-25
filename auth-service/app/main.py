@@ -60,7 +60,7 @@ def create_app() -> FastAPI:
     configure_logging(settings)
 
     app = FastAPI(
-        title="MeetPlatform Auth Service",
+        title="Nadini Auth Service",
         version="0.1.0",
         description=(
             "Magic-Link-Login mit AI-Act-Compliance-Hooks (Art. 50 AI Act). "
