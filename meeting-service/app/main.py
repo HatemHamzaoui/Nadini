@@ -75,6 +75,7 @@ def create_app() -> FastAPI:
         version="0.1.0",
         description="Meeting-CRUD, Teilnehmer-Management und WebSocket-Transkript-Streaming.",
         lifespan=lifespan,
+        redirect_slashes=False,
     )
 
     app.add_middleware(

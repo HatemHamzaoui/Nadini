@@ -28,7 +28,7 @@ from app.domain.errors import (
 )
 from app.services.meeting_service import MeetingService, RequestContext
 
-router = APIRouter(prefix="/meetings", tags=["meetings"])
+router = APIRouter(prefix="/meetings", tags=["meetings"], redirect_slashes=False)
 
 
 @router.post(

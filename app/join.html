@@ -103,6 +103,7 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="i18n-app.js"></script>
   <script>
     // Theme
@@ -131,22 +132,41 @@
     animateMicBars();
 
     // Join button
-    document.getElementById("joinBtn").addEventListener("click", () => {
+    document.getElementById("joinBtn").addEventListener("click", async () => {
       const btn = document.getElementById("joinBtn");
       btn.disabled = true;
       btn.innerHTML = '<span>Verbinden…</span>';
 
-      // Set auth if not set
-      if (!localStorage.getItem("nadini-access-token")) {
-        localStorage.setItem("nadini-access-token", "demo-access-token");
-        localStorage.setItem("nadini-refresh-token", "demo-refresh-token");
-        localStorage.setItem("nadini-user-email", document.getElementById("joinName").value + "@nadini.ai");
-        localStorage.setItem("nadini-disclosure-ack", "2026-04-25");
-      }
+      const cfg = typeof NADINI_CONFIG !== "undefined" ? NADINI_CONFIG : { API_MODE: "demo" };
+      const token = localStorage.getItem("nadini-access-token");
+      const meetingParam = new URLSearchParams(window.location.search).get("m") || new URLSearchParams(window.location.search).get("id");
+      const displayName = document.getElementById("joinName").value || "Gast";
+      const language = document.getElementById("joinLang").value;
 
-      setTimeout(() => {
-        window.location.href = "meeting.html";
-      }, 1000);
+      if (cfg.API_MODE === "live" && token && token !== "demo-access-token" && meetingParam) {
+        try {
+          const res = await fetch(`${cfg.MEETING_API_BASE}/meetings/${meetingParam}/join`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ display_name: displayName, language }),
+          });
+          if (!res.ok) throw new Error("join_failed");
+          const data = await res.json();
+          window.location.href = `meeting.html?id=${data.meeting_id}`;
+        } catch (e) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>Fehler — erneut versuchen</span>';
+        }
+      } else {
+        // Demo mode
+        if (!localStorage.getItem("nadini-access-token")) {
+          localStorage.setItem("nadini-access-token", "demo-access-token");
+          localStorage.setItem("nadini-refresh-token", "demo-refresh-token");
+          localStorage.setItem("nadini-user-email", displayName + "@nadini.ai");
+          localStorage.setItem("nadini-disclosure-ack", "2026-04-25");
+        }
+        setTimeout(() => { window.location.href = "meeting.html"; }, 1000);
+      }
     });
   </script>
 </body>

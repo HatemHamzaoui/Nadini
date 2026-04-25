@@ -10,6 +10,13 @@
     navigator.serviceWorker.register("../sw.js").catch(() => {});
   }
 
+  // ── Config ──
+  const cfg = typeof NADINI_CONFIG !== "undefined" ? NADINI_CONFIG : { API_MODE: "demo" };
+  const isLive = cfg.API_MODE === "live";
+  const params = new URLSearchParams(window.location.search);
+  const meetingId = params.get("id");
+  let ws = null;
+
   // ── Timer ──
   let seconds = 0;
   const timerEl = document.getElementById("meetingTimer");
@@ -44,6 +51,10 @@
     [micMainBtn, micBtn].forEach(btn => {
       if (btn) btn.classList.toggle("active", micActive);
     });
+    // Send status to WebSocket
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: "status_update", status: micActive ? "speaking" : "muted" }));
+    }
     if (micMainBtn) {
       micMainBtn.querySelector(".mic-on").classList.toggle("hidden", !micActive);
       micMainBtn.querySelector(".mic-off").classList.toggle("hidden", micActive);
@@ -63,10 +74,20 @@
   // ── End Meeting ──
   const endBtn = document.getElementById("endBtn");
   const endMeetingBtn = document.getElementById("endMeetingBtn");
-  function endMeeting() {
-    if (confirm("Meeting beenden?")) {
-      window.location.href = "dashboard.html";
+  async function endMeeting() {
+    if (!confirm("Meeting beenden?")) return;
+    if (isLive && meetingId) {
+      try {
+        const token = localStorage.getItem("nadini-access-token");
+        await fetch(`${cfg.MEETING_API_BASE}/meetings/${meetingId}/end`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          body: "{}",
+        });
+      } catch (e) { /* proceed anyway */ }
     }
+    if (ws) ws.close();
+    window.location.href = "dashboard.html";
   }
   if (endBtn) endBtn.addEventListener("click", endMeeting);
   if (endMeetingBtn) endMeetingBtn.addEventListener("click", endMeeting);
@@ -272,8 +293,54 @@
     }, 1800 + Math.random() * 2000);
   }
 
-  // Start streaming after 1s
-  setTimeout(streamNextEntry, 1000);
+  // ── WebSocket Client (Live Mode) ──
+  if (isLive && meetingId && cfg.WS_BASE) {
+    const token = localStorage.getItem("nadini-access-token");
+    const wsUrl = `${cfg.WS_BASE}/meetings/${meetingId}/ws?token=${encodeURIComponent(token)}`;
+
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      if (typeof toast !== "undefined") toast.info("Verbunden");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+
+        if (msg.type === "transcript") {
+          container.appendChild(createTranscriptEntry(msg));
+          updateCaptions(msg);
+          if (autoScroll) container.scrollTop = container.scrollHeight;
+        } else if (msg.type === "participant_joined") {
+          if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);
+        } else if (msg.type === "participant_left") {
+          if (typeof toast !== "undefined") toast.info(`${msg.name} hat verlassen`);
+        } else if (msg.type === "meeting_ended") {
+          if (typeof toast !== "undefined") toast.info("Meeting beendet");
+          setTimeout(() => { window.location.href = "dashboard.html"; }, 2000);
+        }
+      } catch (e) { /* ignore parse errors */ }
+    };
+
+    ws.onclose = () => {
+      if (typeof toast !== "undefined") toast.error("Verbindung getrennt");
+    };
+
+    // Send status updates on mic toggle
+    const origToggleMic = toggleMic;
+    // Mic status is sent via ws in the keyboard shortcuts section
+
+    // Ping keepalive
+    setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "ping" }));
+      }
+    }, 25000);
+  } else {
+    // Demo mode: start streaming hardcoded transcript
+    setTimeout(streamNextEntry, 1000);
+  }
 
   // Auto-scroll toggle
   const autoScrollBtn = document.getElementById("autoScrollBtn");

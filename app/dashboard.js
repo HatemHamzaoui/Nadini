@@ -49,10 +49,32 @@
     });
   }
 
+  // ── API Helper ──
+  const cfg = typeof NADINI_CONFIG !== "undefined" ? NADINI_CONFIG : { API_MODE: "demo" };
+  const isLive = cfg.API_MODE === "live";
+
+  async function apiPost(base, path, body) {
+    const res = await fetch(`${base}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  }
+
+  async function apiGet(base, path) {
+    const res = await fetch(`${base}${path}`, {
+      headers: { "Authorization": `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  }
+
   // ── New Meeting Form ──
   const meetingForm = document.getElementById("meetingForm");
   if (meetingForm) {
-    meetingForm.addEventListener("submit", (e) => {
+    meetingForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("meetingName").value || "Neues Meeting";
       const source = document.getElementById("sourceLang").value;
@@ -60,12 +82,64 @@
 
       const btn = meetingForm.querySelector("button[type=submit]");
       btn.disabled = true;
-      if (typeof toast !== "undefined") toast.success("Meeting \"" + name + "\" wird gestartet…");
 
-      setTimeout(() => {
-        window.location.href = "meeting.html";
-      }, 1000);
+      try {
+        if (isLive) {
+          // Create meeting
+          const meeting = await apiPost(cfg.MEETING_API_BASE, "/meetings", {
+            name, source_lang: source, target_langs: targets,
+          });
+          // Auto-join as host
+          const displayName = email.split("@")[0];
+          await apiPost(cfg.MEETING_API_BASE, `/meetings/${meeting.meeting_id}/join`, {
+            display_name: displayName, language: source,
+          });
+          if (typeof toast !== "undefined") toast.success(`Meeting "${name}" gestartet`);
+          setTimeout(() => { window.location.href = `meeting.html?id=${meeting.meeting_id}`; }, 600);
+        } else {
+          if (typeof toast !== "undefined") toast.success(`Meeting "${name}" wird gestartet…`);
+          setTimeout(() => { window.location.href = "meeting.html"; }, 800);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        if (typeof toast !== "undefined") toast.error("Fehler beim Erstellen des Meetings");
+      }
     });
+  }
+
+  // ── Load Recent Meetings (Live Mode) ──
+  if (isLive) {
+    (async () => {
+      try {
+        const meetings = await apiGet(cfg.MEETING_API_BASE, "/meetings");
+        const statEl = document.getElementById("statMeetings");
+        if (statEl) statEl.textContent = meetings.length;
+
+        // Update recent meetings list
+        const list = document.querySelector(".meeting-list");
+        if (list && meetings.length > 0) {
+          list.innerHTML = "";
+          meetings.slice(0, 5).forEach(m => {
+            const lang = localStorage.getItem("nadini-lang") || "de";
+            const statusText = m.status === "ended" ? (lang === "de" ? "Abgeschlossen" : lang === "fr" ? "Terminé" : "Completed") : "Live";
+            const date = new Date(m.created_at).toLocaleDateString("de-DE");
+            const dur = m.duration_seconds ? `${Math.round(m.duration_seconds / 60)} min` : "—";
+            const targets = m.target_langs.join(", ").toUpperCase();
+
+            list.innerHTML += `
+              <div class="meeting-item">
+                <div class="meeting-info">
+                  <span class="meeting-name">${m.name}</span>
+                  <span class="meeting-meta">${date} · ${dur} · ${m.source_lang.toUpperCase()} → ${targets}</span>
+                </div>
+                <div class="meeting-badges">
+                  <span class="badge badge-green">${statusText}</span>
+                </div>
+              </div>`;
+          });
+        }
+      } catch (err) { /* silent — demo data stays */ }
+    })();
   }
 
   // ── Theme Toggle ──
