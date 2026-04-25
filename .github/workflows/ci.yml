@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Frontend: Validate HTML/CSS/JS ──
+  frontend:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check all HTML files exist and are valid
+        run: |
+          echo "=== HTML Files ==="
+          find landing app -name '*.html' | sort
+          echo ""
+          echo "=== Check for broken internal links ==="
+          ERRORS=0
+          for href in $(grep -roh 'href="[^"#]*\.html"' app/ landing/ | sed 's/href="//;s/"$//' | sort -u); do
+            # Resolve relative paths
+            if [ ! -f "app/$href" ] && [ ! -f "landing/$href" ] && [ ! -f "$href" ]; then
+              echo "BROKEN: $href"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "Found $ERRORS broken links"
+            exit 1
+          fi
+          echo "All internal links OK"
+
+      - name: Check i18n completeness
+        run: |
+          echo "=== Checking i18n key parity ==="
+          node -e "
+            const fs = require('fs');
+            const src = fs.readFileSync('app/i18n-app.js', 'utf-8');
+            // Extract key counts per language block
+            const blocks = src.split(/\b(de|en|fr)\s*:\s*\{/);
+            console.log('i18n-app.js loaded, checking key counts...');
+            const counts = {};
+            for (const lang of ['de', 'en', 'fr']) {
+              const re = new RegExp('\"([^\"]+)\"\\s*:', 'g');
+              const idx = src.indexOf('  ' + lang + ':');
+              const end = src.indexOf('  },', idx);
+              const block = src.substring(idx, end);
+              const keys = [...block.matchAll(re)].map(m => m[1]);
+              counts[lang] = keys.length;
+              console.log('  ' + lang + ': ' + keys.length + ' keys');
+            }
+            if (counts.de !== counts.en || counts.de !== counts.fr) {
+              console.error('Key count mismatch! DE=' + counts.de + ' EN=' + counts.en + ' FR=' + counts.fr);
+              process.exit(1);
+            }
+            console.log('All languages have equal key counts.');
+          "
+
+      - name: Validate manifest.json
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf-8')); console.log('manifest.json: valid')"
+
+  # ── Backend: Python Tests ──
+  backend:
+    name: Auth Service Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: auth-service
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: nadini_test
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d nadini_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Generate JWT keys
+        run: bash scripts/generate_keys.sh
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql+asyncpg://admin:testpass@localhost:5432/nadini_test
+          REDIS_URL: redis://localhost:6379/0
+          JWT_PRIVATE_KEY_PATH: ./secrets/jwt-private.pem
+          JWT_PUBLIC_KEY_PATH: ./secrets/jwt-public.pem
+          JWT_ISSUER: http://test
+          JWT_AUDIENCE: nadini-test
+          MAGIC_LINK_BASE_URL: http://test
+          MAILER_DRIVER: console
+          CORS_ORIGINS: http://localhost
+        run: pytest -v --tb=short
+
+  # ── Docker Build ──
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build auth-service image
+        run: docker build -t nadini-auth-service ./auth-service
+
+      - name: Verify image
+        run: docker run --rm nadini-auth-service python -c "from app.main import app; print('Import OK')"
