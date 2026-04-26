@@ -404,6 +404,8 @@
           if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);
         } else if (msg.type === "participant_left") {
           if (typeof toast !== "undefined") toast.info(`${msg.name} hat verlassen`);
+        } else if (msg.type === "reaction") {
+          handleReaction(msg);
         } else if (msg.type === "chat") {
           handleChatMessage(msg);
         } else if (msg.type === "meeting_ended") {
@@ -535,6 +537,38 @@
       unreadCount = 0;
       if (chatUnread) chatUnread.classList.add("hidden");
     });
+  }
+
+  // ── Emoji Reactions ──
+  const reactionBubbles = document.getElementById("reactionBubbles");
+
+  function showReactionBubble(emoji) {
+    if (!reactionBubbles) return;
+    const el = document.createElement("span");
+    el.className = "reaction-bubble";
+    el.textContent = emoji;
+    el.style.left = (20 + Math.random() * 60) + "%";
+    el.style.bottom = "0";
+    reactionBubbles.appendChild(el);
+    el.addEventListener("animationend", () => el.remove());
+  }
+
+  document.querySelectorAll(".reaction-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const emoji = btn.dataset.emoji;
+
+      // Show locally
+      showReactionBubble(emoji);
+
+      // Send via WebSocket
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "reaction", emoji }));
+      }
+    });
+  });
+
+  function handleReaction(msg) {
+    showReactionBubble(msg.emoji || "👍");
   }
 
   // ── Video (Webcam) ──
