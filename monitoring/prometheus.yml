@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "meeting-service"
+    static_configs:
+      - targets: ["meeting-service:8002"]
+    metrics_path: /metrics
+
+  - job_name: "auth-service"
+    static_configs:
+      - targets: ["auth-service:8001"]
+    metrics_path: /metrics
+
+  - job_name: "audio-gateway"
+    static_configs:
+      - targets: ["audio-gateway:8003"]
+    metrics_path: /metrics

@@ -68,6 +68,18 @@ migrate-auth: ## Run auth-service migrations
 migrate-meeting: ## Run meeting-service migrations
 	docker compose exec meeting-service alembic upgrade head
 
+# ── Monitoring ──
+monitoring-up: ## Start Prometheus + Grafana
+	docker compose --profile monitoring up -d prometheus grafana
+	@echo "\n  Prometheus: http://localhost:9090"
+	@echo "  Grafana:    http://localhost:3100 (admin/nadini)\n"
+
+monitoring-down: ## Stop monitoring
+	docker compose --profile monitoring down
+
+load-test: ## Run k6 load test
+	k6 run tests/load-test.js
+
 # ── Cleanup ──
 clean: down ## Stop + remove volumes
 	docker compose down -v --remove-orphans

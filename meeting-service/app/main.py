@@ -144,6 +144,14 @@ def create_app() -> FastAPI:
     app.include_router(providers_router)
     app.include_router(ws_router)
 
+    # Prometheus metrics endpoint
+    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+    from starlette.responses import Response
+
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics():
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
     return app
 
 

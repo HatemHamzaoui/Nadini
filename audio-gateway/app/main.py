@@ -58,6 +58,12 @@ async def health():
     return {"status": "ok", "service": "nadini-audio-gateway", "model": WHISPER_MODEL}
 
 
+@app.get("/edge/config")
+async def edge_config():
+    from app.edge import get_edge_config
+    return get_edge_config()
+
+
 # Audio buffer per connection
 audio_buffers: dict[str, bytearray] = defaultdict(bytearray)
 SAMPLE_RATE = 16000

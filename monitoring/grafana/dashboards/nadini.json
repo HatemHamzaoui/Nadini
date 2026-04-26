@@ -1,0 +1,42 @@
+{
+  "dashboard": {
+    "title": "Nadini Translation Platform",
+    "panels": [
+      {
+        "title": "Translation Latency (P95)",
+        "type": "timeseries",
+        "targets": [{"expr": "histogram_quantile(0.95, rate(nadini_translation_latency_seconds_bucket[5m]))"}]
+      },
+      {
+        "title": "Active Meetings",
+        "type": "stat",
+        "targets": [{"expr": "nadini_active_meetings"}]
+      },
+      {
+        "title": "Active WebSockets",
+        "type": "stat",
+        "targets": [{"expr": "nadini_active_websockets"}]
+      },
+      {
+        "title": "Translation Requests/min",
+        "type": "timeseries",
+        "targets": [{"expr": "rate(nadini_translation_requests_total[1m]) * 60"}]
+      },
+      {
+        "title": "Failover Rate",
+        "type": "timeseries",
+        "targets": [{"expr": "rate(nadini_translation_failovers_total[5m]) * 60"}]
+      },
+      {
+        "title": "Provider Health",
+        "type": "gauge",
+        "targets": [{"expr": "nadini_provider_health"}]
+      },
+      {
+        "title": "User Feedback (positive %)",
+        "type": "gauge",
+        "targets": [{"expr": "nadini_feedback_total{rating='5'} / (nadini_feedback_total{rating='5'} + nadini_feedback_total{rating='1'}) * 100"}]
+      }
+    ]
+  }
+}
