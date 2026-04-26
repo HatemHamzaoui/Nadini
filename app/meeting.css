@@ -703,6 +703,9 @@
 }
 .video-tile-self { border: 2px solid var(--lx-gold-border); }
 
+/* Sentiment Indicator */
+.sentiment-dot { font-size: 12px; margin-left: auto; cursor: default; }
+
 /* Speaker Highlighting */
 .participant-item.speaking {
   background: var(--lx-gold-bg);

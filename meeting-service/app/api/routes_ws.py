@@ -101,8 +101,16 @@ async def meeting_websocket(
             elif msg_type == "transcript_submit":
                 text = msg.get("text", "").strip()
                 lang = msg.get("lang", "").strip()
-                if not text or not lang:
+                if not text:
                     continue
+
+                # Auto-detect language if not provided or "auto"
+                if not lang or lang == "auto":
+                    try:
+                        from app.services.lang_detect import detect_language
+                        lang, _conf = detect_language(text)
+                    except Exception:
+                        lang = participant.language  # fallback to participant's language
 
                 # Calculate offset
                 offset_ms = 0
@@ -115,8 +123,10 @@ async def meeting_websocket(
                 translations = msg.get("translations", [])
                 if not translations and meeting.target_langs:
                     try:
+                        from app.services.glossary import apply_glossary_to_translations
                         from app.services.translation_service import translate_to_targets
                         translations = translate_to_targets(text, lang, meeting.target_langs)
+                        translations = apply_glossary_to_translations(translations)
                     except Exception as exc:
                         log.warning("translation_error", error=str(exc))
 
@@ -137,6 +147,15 @@ async def meeting_websocket(
                     total_secs = offset_ms // 1000
                     time_str = f"{total_secs // 60:02d}:{total_secs % 60:02d}"
 
+                    # Sentiment analysis
+                    sentiment_data = None
+                    try:
+                        from app.services.sentiment import analyze_sentiment
+                        s = analyze_sentiment(text, lang)
+                        sentiment_data = {"label": s.label, "score": s.score}
+                    except Exception:
+                        pass
+
                     # Broadcast to all
                     await ws_mgr.broadcast(
                         meeting_id,
@@ -148,6 +167,7 @@ async def meeting_websocket(
                             "lang": lang.upper(),
                             "text": text,
                             "translations": translations,
+                            "sentiment": sentiment_data,
                         },
                     )
 

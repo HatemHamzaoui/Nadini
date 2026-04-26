@@ -319,7 +319,7 @@
         <div class="transcript-translations">
           ${entry.translations.map(t => `
             <div class="transcript-translation">
-              <span class="translation-flag">${t.flag}</span>
+              <span class="translation-flag">${t.flag || ""}</span>
               <span class="translation-text">${t.text}</span>
             </div>
           `).join("")}
@@ -327,11 +327,20 @@
       `;
     }
 
+    // Sentiment indicator
+    let sentimentHTML = "";
+    if (entry.sentiment && entry.sentiment.label) {
+      const icons = { positive: "😊", neutral: "😐", negative: "😟" };
+      const colors = { positive: "var(--lx-green)", neutral: "var(--lx-text-dimmed)", negative: "var(--lx-red)" };
+      sentimentHTML = `<span class="sentiment-dot" style="color:${colors[entry.sentiment.label]}" title="${entry.sentiment.label}">${icons[entry.sentiment.label]}</span>`;
+    }
+
     el.innerHTML = `
       <div class="transcript-header">
         <span class="transcript-speaker">${entry.speaker}</span>
         <span class="transcript-time">${entry.time}</span>
         <span class="transcript-lang-tag ${tagClass}">${entry.lang} · ${langTag}</span>
+        ${sentimentHTML}
       </div>
       <p class="transcript-text">${entry.text}</p>
       ${translationsHTML}
