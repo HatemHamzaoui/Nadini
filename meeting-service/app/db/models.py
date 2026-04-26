@@ -41,7 +41,7 @@ class Meeting(Base):
     __tablename__ = "meetings"
     __table_args__ = (
         CheckConstraint(
-            "status IN ('waiting','active','ended')",
+            "status IN ('scheduled','waiting','active','ended')",
             name="meeting_status_check",
         ),
     )
@@ -63,6 +63,9 @@ class Meeting(Base):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default="waiting"
     )
+    scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    description: Mapped[str | None] = mapped_column(Text)
+    invited_emails: Mapped[list | None] = mapped_column(JSONB)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(

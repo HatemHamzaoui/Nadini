@@ -39,6 +39,9 @@ class MeetingService:
         source_lang: str,
         target_langs: list[str],
         ctx: RequestContext,
+        scheduled_at: datetime | None = None,
+        description: str | None = None,
+        invited_emails: list[str] | None = None,
     ) -> Meeting:
         # Rate limit
         if not await self._rate_limiter.hit(
@@ -59,14 +62,18 @@ class MeetingService:
         else:
             join_code = secrets.token_urlsafe(8)[:12]
 
+        is_scheduled = scheduled_at is not None
         meeting = Meeting(
             owner_id=owner_id,
             name=name,
             source_lang=source_lang,
             target_langs=target_langs,
             join_code=join_code,
-            status="active",
-            started_at=datetime.now(timezone.utc),
+            status="scheduled" if is_scheduled else "active",
+            scheduled_at=scheduled_at,
+            description=description,
+            invited_emails=invited_emails,
+            started_at=None if is_scheduled else datetime.now(timezone.utc),
         )
         session.add(meeting)
         await session.flush()

@@ -79,27 +79,42 @@
       const name = document.getElementById("meetingName").value || "Neues Meeting";
       const source = document.getElementById("sourceLang").value;
       const targets = Array.from(document.getElementById("targetLangs").selectedOptions).map(o => o.value);
+      const scheduleVal = document.getElementById("meetingSchedule")?.value;
+      const descVal = document.getElementById("meetingDesc")?.value?.trim() || null;
+      const invitesVal = document.getElementById("meetingInvites")?.value?.trim();
+      const invitedEmails = invitesVal ? invitesVal.split(",").map(e => e.trim()).filter(Boolean) : null;
+      const scheduledAt = scheduleVal ? new Date(scheduleVal).toISOString() : null;
+      const isScheduled = !!scheduledAt;
 
       const btn = meetingForm.querySelector("button[type=submit]");
       btn.disabled = true;
 
       try {
         if (isLive) {
-          // Create meeting
           const meeting = await apiPost(cfg.MEETING_API_BASE, "/meetings", {
             name, source_lang: source, target_langs: targets,
+            scheduled_at: scheduledAt, description: descVal, invited_emails: invitedEmails,
           });
-          // Auto-join as host
-          const displayName = email.split("@")[0];
-          await apiPost(cfg.MEETING_API_BASE, `/meetings/${meeting.meeting_id}/join`, {
-            display_name: displayName, language: source,
-          });
-          if (typeof toast !== "undefined") toast.success(`Meeting "${name}" gestartet`);
-          localStorage.setItem("nadini-meeting-lang", source);
-          setTimeout(() => { window.location.href = `meeting.html?id=${meeting.meeting_id}&lang=${source}`; }, 600);
+
+          if (isScheduled) {
+            if (typeof toast !== "undefined") toast.success(`Meeting "${name}" geplant`);
+            btn.disabled = false;
+            meetingForm.reset();
+            // Reload meeting list
+            setTimeout(() => window.location.reload(), 800);
+          } else {
+            const displayName = email.split("@")[0];
+            await apiPost(cfg.MEETING_API_BASE, `/meetings/${meeting.meeting_id}/join`, {
+              display_name: displayName, language: source,
+            });
+            if (typeof toast !== "undefined") toast.success(`Meeting "${name}" gestartet`);
+            localStorage.setItem("nadini-meeting-lang", source);
+            setTimeout(() => { window.location.href = `meeting.html?id=${meeting.meeting_id}&lang=${source}`; }, 600);
+          }
         } else {
-          if (typeof toast !== "undefined") toast.success(`Meeting "${name}" wird gestartet…`);
-          setTimeout(() => { window.location.href = "meeting.html"; }, 800);
+          if (typeof toast !== "undefined") toast.success(isScheduled ? `Meeting "${name}" geplant` : `Meeting "${name}" wird gestartet…`);
+          if (isScheduled) { btn.disabled = false; meetingForm.reset(); }
+          else { setTimeout(() => { window.location.href = "meeting.html"; }, 800); }
         }
       } catch (err) {
         btn.disabled = false;

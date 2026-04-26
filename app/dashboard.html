@@ -174,10 +174,25 @@
               </select>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
-            <span data-i18n="dash.meeting.start">Meeting starten</span>
-          </button>
+          <!-- Scheduling (optional) -->
+          <div class="form-group">
+            <label for="meetingSchedule" data-i18n="dash.meeting.schedule">Termin (optional)</label>
+            <input type="datetime-local" class="form-input" id="meetingSchedule">
+          </div>
+          <div class="form-group">
+            <label for="meetingDesc" data-i18n="dash.meeting.desc">Beschreibung (optional)</label>
+            <input type="text" class="form-input" id="meetingDesc" data-i18n-placeholder="dash.meeting.desc_ph" placeholder="Agenda, Notizen…">
+          </div>
+          <div class="form-group">
+            <label for="meetingInvites" data-i18n="dash.meeting.invites">Einladen per E-Mail (optional)</label>
+            <input type="text" class="form-input" id="meetingInvites" data-i18n-placeholder="dash.meeting.invites_ph" placeholder="bob@firma.de, claire@example.fr">
+          </div>
+          <div class="meeting-form-actions">
+            <button type="submit" class="btn btn-primary btn-block" id="startNowBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+              <span data-i18n="dash.meeting.start">Meeting starten</span>
+            </button>
+          </div>
         </form>
       </section>
 

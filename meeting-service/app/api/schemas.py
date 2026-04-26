@@ -14,6 +14,9 @@ class CreateMeetingRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     source_lang: str = Field(..., min_length=2, max_length=10)
     target_langs: list[str] = Field(..., min_length=1, max_length=20)
+    scheduled_at: datetime | None = None
+    description: str | None = Field(default=None, max_length=1000)
+    invited_emails: list[str] | None = None
 
 
 class JoinMeetingRequest(BaseModel):
@@ -33,6 +36,9 @@ class MeetingOut(BaseModel):
     status: str
     owner_id: uuid.UUID
     participant_count: int = 0
+    scheduled_at: datetime | None = None
+    description: str | None = None
+    invited_emails: list[str] | None = None
     started_at: datetime | None = None
     ended_at: datetime | None = None
     created_at: datetime
