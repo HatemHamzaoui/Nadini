@@ -349,9 +349,28 @@
     } catch (e) { /* silent */ }
   };
 
+  // ── Interpreter Correction ──
+  const userRole = localStorage.getItem("nadini-user-role") || "user";
+  const isInterpreter = userRole === "interpreter" || userRole === "admin";
+
+  window.correctTranslation = (segmentId, targetLang, currentText) => {
+    const corrected = prompt("Übersetzung korrigieren:", currentText);
+    if (!corrected || corrected === currentText) return;
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: "translation_correction",
+        segment_id: segmentId,
+        target_lang: targetLang,
+        corrected_text: corrected,
+      }));
+    }
+  };
+
   function createTranscriptEntry(entry) {
     const el = document.createElement("div");
     el.className = "transcript-entry";
+    if (entry.segment_id) el.dataset.segmentId = entry.segment_id;
 
     const isOriginal = entry.lang === "DE";
     const langTag = isOriginal ? "Original" : "AI";
@@ -366,6 +385,7 @@
               <span class="translation-flag">${t.flag || ""}</span>
               <span class="translation-text">${t.text}</span>
               <span class="translation-feedback">
+                ${isInterpreter ? `<button class="fb-btn fb-edit" onclick="correctTranslation('${entry.segment_id || ""}','${t.lang || ""}','${(t.text || "").replace(/'/g, "\\'")}')" title="Korrigieren">✏️</button>` : ""}
                 <button class="fb-btn fb-up" onclick="sendFeedback('${entry.segment_id || ""}','${t.provider || ""}','${entry.lang || ""}','${t.lang || ""}',5)" title="Gute Übersetzung">👍</button>
                 <button class="fb-btn fb-down" onclick="sendFeedback('${entry.segment_id || ""}','${t.provider || ""}','${entry.lang || ""}','${t.lang || ""}',1)" title="Schlechte Übersetzung">👎</button>
               </span>
@@ -502,6 +522,34 @@
           if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);
         } else if (msg.type === "participant_left") {
           if (typeof toast !== "undefined") toast.info(`${msg.name} hat verlassen`);
+        } else if (msg.type === "translation_correction") {
+          // Interpreter corrected a translation — update in DOM
+          const segEl = document.querySelector(`[data-segment-id="${msg.segment_id}"]`);
+          if (segEl) {
+            const translations = segEl.querySelectorAll(".transcript-translation");
+            translations.forEach(tEl => {
+              const flagEl = tEl.querySelector(".translation-flag");
+              if (flagEl) {
+                const langCode = flagEl.nextElementSibling?.textContent?.trim();
+                // Check by comparing lang from the correction
+              }
+              const textEl = tEl.querySelector(".translation-text");
+              if (textEl && tEl.innerHTML.includes(msg.target_lang)) {
+                textEl.textContent = msg.corrected_text;
+                textEl.classList.add("translation-corrected");
+                // Add corrected badge
+                if (!tEl.querySelector(".corrected-badge")) {
+                  const badge = document.createElement("span");
+                  badge.className = "corrected-badge";
+                  badge.textContent = `✏️ ${msg.corrected_by}`;
+                  tEl.appendChild(badge);
+                }
+              }
+            });
+          }
+          if (typeof toast !== "undefined") {
+            toast.info(`✏️ ${msg.corrected_by} hat Übersetzung korrigiert`);
+          }
         } else if (msg.type === "notes_update") {
           handleNotesUpdate(msg);
         } else if (msg.type === "reaction") {

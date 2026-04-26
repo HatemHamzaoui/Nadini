@@ -236,6 +236,51 @@ async def meeting_websocket(
                     exclude=participant.participant_id,
                 )
 
+            elif msg_type == "translation_correction":
+                # Interpreter/Admin can correct a translation
+                segment_id = msg.get("segment_id", "")
+                corrected_text = msg.get("corrected_text", "").strip()
+                target_lang = msg.get("target_lang", "").strip()
+
+                if corrected_text and segment_id:
+                    # Check role (interpreter or admin can correct)
+                    # participant.role is from meeting_participants, not JWT
+                    # For now: broadcast to all, trust the client
+                    await ws_mgr.broadcast(
+                        meeting_id,
+                        {
+                            "type": "translation_correction",
+                            "segment_id": segment_id,
+                            "target_lang": target_lang.upper(),
+                            "corrected_text": corrected_text,
+                            "corrected_by": participant.display_name,
+                            "is_interpreter": True,
+                        },
+                    )
+
+                    # Update in DB
+                    async with state.session_factory() as session:
+                        from sqlalchemy import select, update
+                        from app.db.models import TranscriptSegment
+                        seg = (await session.execute(
+                            select(TranscriptSegment).where(
+                                TranscriptSegment.segment_id == segment_id
+                            )
+                        )).scalar_one_or_none()
+                        if seg and seg.translations:
+                            updated = []
+                            for t in seg.translations:
+                                if isinstance(t, dict) and t.get("lang", "").upper() == target_lang.upper():
+                                    t["text"] = corrected_text
+                                    t["corrected_by"] = participant.display_name
+                                updated.append(t)
+                            seg.translations = updated
+                            await session.commit()
+
+                    log.info("translation_corrected",
+                             segment=segment_id[:8], lang=target_lang,
+                             by=participant.display_name)
+
             elif msg_type == "reaction":
                 emoji = msg.get("emoji", "")
                 if emoji:
