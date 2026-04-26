@@ -197,3 +197,34 @@ async def test_provider(
         return {"translated_text": translated, "latency_ms": round(latency, 1), "status": "ok", "provider": cfg.name}
     except Exception as exc:
         return {"translated_text": None, "latency_ms": 0, "status": "error", "error": str(exc), "provider": cfg.name}
+
+
+@router.get("/quality", summary="Quality monitoring dashboard")
+async def quality_dashboard(
+    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+) -> dict:
+    if not state.quality_monitor:
+        return {"latency": {}, "feedback": {}, "anomalies": []}
+    return state.quality_monitor.get_dashboard()
+
+
+@router.post("/quality/feedback", summary="Submit translation quality feedback")
+async def submit_feedback(
+    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    body: dict,
+) -> dict:
+    if not state.quality_monitor:
+        return {"status": "not_available"}
+
+    from app.translation.quality import FeedbackEntry
+    feedback = FeedbackEntry(
+        segment_id=body.get("segment_id", ""),
+        meeting_id=body.get("meeting_id", ""),
+        user_id=str(user_id),
+        provider=body.get("provider", ""),
+        source_lang=body.get("source_lang", ""),
+        target_lang=body.get("target_lang", ""),
+        rating=body.get("rating", 3),
+    )
+    await state.quality_monitor.record_feedback(feedback)
+    return {"status": "recorded", "rating": feedback.rating}

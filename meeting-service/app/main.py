@@ -78,6 +78,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         deps.state.translation_router = translation_router
 
         await health_monitor.start()
+
+        # Quality Monitor
+        from app.translation.quality import QualityMonitor
+        deps.state.quality_monitor = QualityMonitor(redis)
     except Exception as exc:
         log.warning("translation_engine_init_failed", error=str(exc))
 

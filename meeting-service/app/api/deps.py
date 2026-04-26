@@ -25,6 +25,7 @@ class AppState:
     translation_router: object | None = None  # TranslationRouter
     health_monitor: object | None = None  # HealthMonitor
     provider_registry: object | None = None  # ProviderRegistry
+    quality_monitor: object | None = None  # QualityMonitor
 
 
 state = AppState()

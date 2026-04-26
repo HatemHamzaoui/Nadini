@@ -143,6 +143,15 @@ class TranslationRouter:
                         provider.translate(text, source_lang, target),
                         timeout=timeout,
                     )
+                # Record latency for quality monitoring
+                latency = provider.get_latency_ms()
+                try:
+                    from app.api.deps import state
+                    if state.quality_monitor:
+                        state.quality_monitor.record_latency(provider.name, latency)
+                except Exception:
+                    pass
+
                 if is_failover:
                     log.info("translation_failover", src=source_lang, tgt=target,
                              provider=provider.name)

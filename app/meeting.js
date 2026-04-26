@@ -331,6 +331,24 @@
     },
   ];
 
+  // ── Translation Feedback ──
+  window.sendFeedback = async (segmentId, provider, srcLang, tgtLang, rating) => {
+    if (!isLive) return;
+    try {
+      const token = localStorage.getItem("nadini-access-token");
+      await fetch(`${cfg.MEETING_API_BASE}/providers/quality/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({
+          segment_id: segmentId, meeting_id: meetingId || "",
+          provider, source_lang: srcLang.toLowerCase(), target_lang: tgtLang.toLowerCase(),
+          rating,
+        }),
+      });
+      if (typeof toast !== "undefined") toast.success(rating >= 4 ? "👍 Danke!" : "👎 Feedback gesendet");
+    } catch (e) { /* silent */ }
+  };
+
   function createTranscriptEntry(entry) {
     const el = document.createElement("div");
     el.className = "transcript-entry";
@@ -347,6 +365,10 @@
             <div class="transcript-translation">
               <span class="translation-flag">${t.flag || ""}</span>
               <span class="translation-text">${t.text}</span>
+              <span class="translation-feedback">
+                <button class="fb-btn fb-up" onclick="sendFeedback('${entry.segment_id || ""}','${t.provider || ""}','${entry.lang || ""}','${t.lang || ""}',5)" title="Gute Übersetzung">👍</button>
+                <button class="fb-btn fb-down" onclick="sendFeedback('${entry.segment_id || ""}','${t.provider || ""}','${entry.lang || ""}','${t.lang || ""}',1)" title="Schlechte Übersetzung">👎</button>
+              </span>
             </div>
           `).join("")}
         </div>
