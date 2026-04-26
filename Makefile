@@ -86,6 +86,20 @@ monitoring-down: ## Stop monitoring
 load-test: ## Run k6 load test
 	k6 run tests/load-test.js
 
+# ── Production ──
+prod-up: ## Start production stack (needs .env.production + certs/)
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
+	@echo "\n  Production running on https://$${DOMAIN:-nadini.ai}\n"
+
+prod-down: ## Stop production stack
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down
+
+prod-logs: ## Tail production logs
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f --tail=50
+
+prod-status: ## Production container status
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+
 # ── Cleanup ──
 clean: down ## Stop + remove volumes
 	docker compose down -v --remove-orphans

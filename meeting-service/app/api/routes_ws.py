@@ -26,12 +26,25 @@ router = APIRouter(tags=["websocket"])
 async def meeting_websocket(
     websocket: WebSocket,
     meeting_id: uuid.UUID,
-    token: str = Query(...),
+    token: str = Query(default=""),
 ) -> None:
-    # ── Auth ──
+    # ── Auth ── (accept token from query param OR first WS message)
     jwt = get_jwt_verifier()
+    auth_token = token
+
+    # If no token in query, try subprotocol header
+    if not auth_token:
+        # Check Sec-WebSocket-Protocol header for token
+        protocols = websocket.headers.get("sec-websocket-protocol", "")
+        if protocols:
+            auth_token = protocols.split(",")[0].strip()
+
+    if not auth_token:
+        await websocket.close(code=4001, reason="No authentication token provided")
+        return
+
     try:
-        claims = jwt.decode(token)
+        claims = jwt.decode(auth_token)
         user_id = uuid.UUID(claims["sub"])
     except (JWTVerifyError, KeyError, ValueError):
         await websocket.close(code=4001, reason="Authentication failed")

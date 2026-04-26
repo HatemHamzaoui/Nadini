@@ -2,6 +2,14 @@
 auth-service/secrets/
 *.pem
 .env
+.env.production
+.env.staging
+
+# ── Backups ──
+backups/
+
+# ── TLS Certificates ──
+certs/
 
 # ── Python ──
 __pycache__/
