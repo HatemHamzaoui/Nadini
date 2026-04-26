@@ -669,6 +669,40 @@
   .btn-danger-sm { display: none; }
 }
 
+/* Video Grid */
+.video-grid {
+  display: grid; grid-template-columns: 1fr; gap: 4px;
+  margin-bottom: 8px;
+}
+.video-tile {
+  position: relative; border-radius: var(--lx-radius-lg);
+  overflow: hidden; background: #000; aspect-ratio: 16/9;
+}
+.video-tile video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.video-tile-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 4px 8px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+.video-tile-name {
+  font-size: 10px; font-weight: 600; color: #fff;
+}
+.video-tile-off {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--lx-bg-alt);
+}
+.video-tile-off.hidden { display: none; }
+.video-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--lx-gold-bg); border: 1px solid var(--lx-gold-border);
+  color: var(--lx-gold); font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.video-tile-self { border: 2px solid var(--lx-gold-border); }
+
 /* Chat */
 .meeting-chat-card { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .chat-messages {

@@ -162,8 +162,8 @@
   const endMeetingBtn = document.getElementById("endMeetingBtn");
   async function endMeeting() {
     if (!confirm("Meeting beenden?")) return;
-    // Stop recording if active
     if (isRecording) stopRecording();
+    if (camActive) toggleCam();
     if (isLive && meetingId) {
       try {
         const token = localStorage.getItem("nadini-access-token");
@@ -537,6 +537,48 @@
     });
   }
 
+  // ── Video (Webcam) ──
+  const camToggleBtn = document.getElementById("camToggleBtn");
+  const selfVideo = document.getElementById("selfVideo");
+  const selfVideoOff = document.getElementById("selfVideoOff");
+  const selfVideoName = document.getElementById("selfVideoName");
+  const selfVideoAvatar = document.getElementById("selfVideoAvatar");
+  let camStream = null;
+  let camActive = false;
+
+  if (selfVideoName) selfVideoName.textContent = myName;
+  if (selfVideoAvatar) selfVideoAvatar.textContent = myName.charAt(0).toUpperCase();
+
+  async function toggleCam() {
+    if (camActive) {
+      // Turn off
+      if (camStream) {
+        camStream.getTracks().forEach(t => t.stop());
+        camStream = null;
+      }
+      if (selfVideo) selfVideo.srcObject = null;
+      if (selfVideoOff) selfVideoOff.classList.remove("hidden");
+      if (camToggleBtn) camToggleBtn.classList.remove("ctrl-btn-active");
+      camActive = false;
+    } else {
+      // Turn on
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 320, height: 180, facingMode: "user" },
+          audio: false,
+        });
+        if (selfVideo) selfVideo.srcObject = camStream;
+        if (selfVideoOff) selfVideoOff.classList.add("hidden");
+        if (camToggleBtn) camToggleBtn.classList.add("ctrl-btn-active");
+        camActive = true;
+      } catch (e) {
+        if (typeof toast !== "undefined") toast.error("Kamera-Zugriff verweigert");
+      }
+    }
+  }
+
+  if (camToggleBtn) camToggleBtn.addEventListener("click", toggleCam);
+
   // ── Recording ──
   const recordBtn = document.getElementById("recordBtn");
   let mediaRecorder = null;
@@ -679,6 +721,10 @@
       case "r":
         e.preventDefault();
         toggleRecording();
+        break;
+      case "v":
+        e.preventDefault();
+        toggleCam();
         break;
       case "d":
         e.preventDefault();
