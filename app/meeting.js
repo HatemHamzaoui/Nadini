@@ -404,6 +404,8 @@
           if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);
         } else if (msg.type === "participant_left") {
           if (typeof toast !== "undefined") toast.info(`${msg.name} hat verlassen`);
+        } else if (msg.type === "notes_update") {
+          handleNotesUpdate(msg);
         } else if (msg.type === "reaction") {
           handleReaction(msg);
         } else if (msg.type === "chat") {
@@ -536,6 +538,71 @@
     chatMessages.addEventListener("click", () => {
       unreadCount = 0;
       if (chatUnread) chatUnread.classList.add("hidden");
+    });
+  }
+
+  // ── Shared Notes ──
+  const notesEditor = document.getElementById("notesEditor");
+  const notesSaved = document.getElementById("notesSaved");
+  const downloadNotesBtn = document.getElementById("downloadNotesBtn");
+  let notesTimer = null;
+  let isRemoteNoteUpdate = false;
+
+  if (notesEditor) {
+    // Load saved notes from localStorage
+    const savedNotes = localStorage.getItem(`nadini-notes-${meetingId || "demo"}`);
+    if (savedNotes) notesEditor.value = savedNotes;
+
+    // Debounced sync on input
+    notesEditor.addEventListener("input", () => {
+      if (isRemoteNoteUpdate) return;
+      clearTimeout(notesTimer);
+      notesTimer = setTimeout(() => {
+        const text = notesEditor.value;
+        localStorage.setItem(`nadini-notes-${meetingId || "demo"}`, text);
+
+        // Broadcast to other participants
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "notes_update", text }));
+        }
+
+        // Show "saved" indicator
+        if (notesSaved) {
+          notesSaved.classList.add("show");
+          notesSaved.classList.remove("hidden");
+          setTimeout(() => notesSaved.classList.remove("show"), 1500);
+        }
+      }, 500);
+    });
+  }
+
+  function handleNotesUpdate(msg) {
+    if (!notesEditor) return;
+    isRemoteNoteUpdate = true;
+    const cursorPos = notesEditor.selectionStart;
+    notesEditor.value = msg.text || "";
+    notesEditor.selectionStart = notesEditor.selectionEnd = cursorPos;
+    localStorage.setItem(`nadini-notes-${meetingId || "demo"}`, msg.text || "");
+    isRemoteNoteUpdate = false;
+  }
+
+  // Download notes
+  if (downloadNotesBtn && notesEditor) {
+    downloadNotesBtn.addEventListener("click", () => {
+      const text = notesEditor.value.trim();
+      if (!text) { if (typeof toast !== "undefined") toast.info("Keine Notizen vorhanden"); return; }
+
+      const name = document.querySelector(".meeting-room-title")?.textContent || "meeting";
+      const blob = new Blob([`Nadini Meeting-Notizen: ${name}\n${"=".repeat(40)}\n\n${text}\n`], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `nadini-notizen-${name.replace(/\s+/g, "-").toLowerCase()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (typeof toast !== "undefined") toast.success("Notizen exportiert");
     });
   }
 

@@ -703,6 +703,25 @@
 }
 .video-tile-self { border: 2px solid var(--lx-gold-border); }
 
+/* Notes */
+.meeting-notes-card { }
+.notes-editor {
+  width: 100%; min-height: 80px; max-height: 150px; resize: vertical;
+  background: var(--lx-input-bg); border: 1px solid var(--lx-input-border);
+  border-radius: var(--lx-radius-md); padding: 8px 10px;
+  font-size: 12px; font-family: var(--lx-font-family);
+  color: var(--lx-text); line-height: 1.5; outline: none;
+  transition: border-color 0.15s ease;
+}
+.notes-editor:focus { border-color: var(--lx-gold); box-shadow: 0 0 0 2px var(--lx-gold-bg); }
+.notes-editor::placeholder { color: var(--lx-text-dimmed); }
+.notes-status { display: flex; justify-content: flex-end; margin-top: 4px; }
+.notes-saved {
+  font-size: 10px; color: var(--lx-green); font-weight: 600;
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.notes-saved.show { opacity: 1; }
+
 /* Chat */
 .meeting-chat-card { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .chat-messages {

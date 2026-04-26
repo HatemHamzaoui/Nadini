@@ -151,6 +151,14 @@ async def meeting_websocket(
                         },
                     )
 
+            elif msg_type == "notes_update":
+                notes_text = msg.get("text", "")
+                await ws_mgr.broadcast(
+                    meeting_id,
+                    {"type": "notes_update", "text": notes_text},
+                    exclude=participant.participant_id,
+                )
+
             elif msg_type == "reaction":
                 emoji = msg.get("emoji", "")
                 if emoji:
