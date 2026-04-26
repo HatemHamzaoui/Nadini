@@ -23,13 +23,24 @@ open landing/index.html
 open app/login.html?demo=1
 ```
 
-### Full Stack (Docker)
+### Full Stack (Docker) — empfohlen
+
+```bash
+make up          # Startet alles (Keys + Build + 5 Container)
+make logs        # Logs aller Services
+make test-e2e    # Smoke-Test (Health-Checks)
+make ps          # Container-Status
+make down        # Stoppen
+make help        # Alle Befehle
+```
+
+Oder manuell:
 
 ```bash
 # 1. JWT-Schlüssel generieren
 cd auth-service && bash scripts/generate_keys.sh && cd ..
 
-# 2. Stack starten (Postgres + Redis + Auth-Service + Nginx)
+# 2. Stack starten (Postgres + Redis + Auth-Service + Meeting-Service + Nginx)
 docker compose up --build
 
 # 3. Öffnen
