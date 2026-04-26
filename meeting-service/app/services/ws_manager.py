@@ -26,6 +26,12 @@ class WebSocketManager:
             self._connections[meeting_id] = {}
         self._connections[meeting_id][participant_id] = ws
         log.info("ws_connected", meeting_id=str(meeting_id), participant_id=str(participant_id))
+        try:
+            from app.core.metrics import ACTIVE_WEBSOCKETS, ACTIVE_MEETINGS
+            ACTIVE_WEBSOCKETS.inc()
+            ACTIVE_MEETINGS.set(len(self._connections))
+        except Exception:
+            pass
 
     def disconnect(self, meeting_id: uuid.UUID, participant_id: uuid.UUID) -> None:
         if meeting_id in self._connections:
@@ -33,6 +39,12 @@ class WebSocketManager:
             if not self._connections[meeting_id]:
                 del self._connections[meeting_id]
         log.info("ws_disconnected", meeting_id=str(meeting_id), participant_id=str(participant_id))
+        try:
+            from app.core.metrics import ACTIVE_WEBSOCKETS, ACTIVE_MEETINGS
+            ACTIVE_WEBSOCKETS.dec()
+            ACTIVE_MEETINGS.set(len(self._connections))
+        except Exception:
+            pass
 
     async def broadcast(
         self,

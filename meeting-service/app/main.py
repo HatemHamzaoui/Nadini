@@ -43,9 +43,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     engine = create_engine(settings)
     deps.state.session_factory = create_session_factory(engine)
 
-    # Redis
-    redis = Redis.from_url(settings.redis_url, decode_responses=True)
-    deps.state.rate_limiter = RedisRateLimiter(redis)
+    # Redis (with graceful fallback)
+    try:
+        redis = Redis.from_url(settings.redis_url, decode_responses=True)
+        await redis.ping()
+        deps.state.rate_limiter = RedisRateLimiter(redis)
+        log.info("redis_connected", url=settings.redis_url)
+    except Exception as exc:
+        log.warning("redis_unavailable", error=str(exc), hint="Rate limiting disabled")
+        redis = None
+        # Fallback: no-op rate limiter (allows all requests)
+        class NoOpRateLimiter:
+            async def hit(self, *a, **kw): return True
+        deps.state.rate_limiter = NoOpRateLimiter()
 
     # JWT Verifier (fetch JWKS from auth-service)
     jwt_verifier = JWTVerifier(

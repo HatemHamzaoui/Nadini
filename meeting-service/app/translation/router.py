@@ -73,29 +73,47 @@ class TranslationRouter:
         backup = self._registry.get(backup_name)
         argos = self._registry.get("argostranslate")
 
-        if primary:
-            health = await self._health.get_health(primary_name)
-            if health.status == ProviderStatus.GREEN:
-                return primary, False
-            if health.status == ProviderStatus.YELLOW:
-                # Live mode: failover immediately on yellow
-                if mode == "live":
-                    if backup:
-                        backup_health = await self._health.get_health(backup_name)
-                        if backup_health.status == ProviderStatus.GREEN:
-                            return backup, True
-                # Online mode: accept yellow
-                return primary, False
+        if mode == "live":
+            # LIVE MODE: prioritize lowest latency, strict health requirements
+            # If primary is GREEN and fast → use it
+            # If primary is YELLOW or slow → immediate failover
+            # If both slow → argostranslate (always fast, ~100ms)
+            candidates = []
+            for name, provider in [(primary_name, primary), (backup_name, backup)]:
+                if provider:
+                    h = await self._health.get_health(name)
+                    if h.status != ProviderStatus.RED:
+                        candidates.append((provider, h.avg_latency_ms, name == backup_name))
 
-        # Primary is RED → try backup
-        if backup and backup_name != primary_name:
-            backup_health = await self._health.get_health(backup_name)
-            if backup_health.status != ProviderStatus.RED:
-                return backup, True
+            if candidates:
+                # Sort by latency — pick fastest
+                candidates.sort(key=lambda c: c[1])
+                best, lat, is_fo = candidates[0]
+                if lat < 500:  # Under 500ms → acceptable for live
+                    return best, is_fo
 
-        # Both RED → argostranslate (always available)
-        if argos:
-            return argos, True
+            # All too slow → argostranslate (fastest offline)
+            if argos:
+                return argos, True
+
+        else:
+            # ONLINE MODE: prioritize quality (priority-based), tolerate higher latency
+            if primary:
+                health = await self._health.get_health(primary_name)
+                if health.status == ProviderStatus.GREEN:
+                    return primary, False
+                if health.status == ProviderStatus.YELLOW:
+                    return primary, False  # Accept yellow in online mode
+
+            # Primary is RED → try backup
+            if backup and backup_name != primary_name:
+                backup_health = await self._health.get_health(backup_name)
+                if backup_health.status != ProviderStatus.RED:
+                    return backup, True
+
+            # Both RED → argostranslate
+            if argos:
+                return argos, True
 
         raise TranslationError("No translation provider available")
 
@@ -143,12 +161,17 @@ class TranslationRouter:
                         provider.translate(text, source_lang, target),
                         timeout=timeout,
                     )
-                # Record latency for quality monitoring
+                # Record metrics
                 latency = provider.get_latency_ms()
                 try:
                     from app.api.deps import state
                     if state.quality_monitor:
                         state.quality_monitor.record_latency(provider.name, latency)
+                    from app.core.metrics import TRANSLATION_REQUESTS, TRANSLATION_LATENCY, TRANSLATION_FAILOVERS
+                    TRANSLATION_REQUESTS.labels(provider=provider.name, source_lang=source_lang, target_lang=target, status="success").inc()
+                    TRANSLATION_LATENCY.labels(provider=provider.name).observe(latency / 1000)
+                    if is_failover:
+                        TRANSLATION_FAILOVERS.labels(source_provider="primary", fallback_provider=provider.name).inc()
                 except Exception:
                     pass
 
@@ -163,6 +186,11 @@ class TranslationRouter:
                     "failover": is_failover,
                 }
             except asyncio.TimeoutError:
+                try:
+                    from app.core.metrics import TRANSLATION_REQUESTS
+                    TRANSLATION_REQUESTS.labels(provider="timeout", source_lang=source_lang, target_lang=target, status="timeout").inc()
+                except Exception:
+                    pass
                 log.warning("translation_timeout", src=source_lang, tgt=target, timeout=timeout)
                 # Last resort: try argos synchronously
                 try:

@@ -58,6 +58,12 @@ test-e2e: ## Run E2E smoke test
 db-shell: ## Open psql shell
 	docker compose exec postgres psql -U admin -d nadini
 
+db-backup: ## Backup database to ./backups/
+	bash scripts/backup.sh
+
+db-restore: ## Restore database (usage: make db-restore FILE=backups/nadini_xxx.dump.gz)
+	gunzip -c $(FILE) | docker compose exec -T postgres pg_restore -U admin -d nadini --clean --if-exists
+
 db-reset: ## Drop and recreate database (DESTRUCTIVE)
 	docker compose down -v
 	$(MAKE) up

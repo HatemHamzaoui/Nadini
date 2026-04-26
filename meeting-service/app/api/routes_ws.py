@@ -146,7 +146,7 @@ async def meeting_websocket(
                 translations = msg.get("translations", [])
                 if not translations and meeting.target_langs:
                     try:
-                        from app.services.glossary import apply_glossary_to_translations
+                        from app.services.glossary import DEFAULT_GLOSSARY, GlossaryEntry, apply_glossary_to_translations
                         router = state.translation_router
                         if router:
                             translations = await router.translate_to_targets(
@@ -155,7 +155,27 @@ async def meeting_websocket(
                                 meeting_id=str(meeting_id),
                                 speaker=participant.display_name,
                             )
-                            translations = apply_glossary_to_translations(translations)
+                            # Apply glossary (default + tenant via shared DB)
+                            glossary = list(DEFAULT_GLOSSARY)
+                            try:
+                                async with state.session_factory() as gs:
+                                    from sqlalchemy import text as sql_text
+                                    row = (await gs.execute(sql_text(
+                                        "SELECT t.custom_glossary FROM tenants t "
+                                        "JOIN users u ON u.tenant_id = t.tenant_id "
+                                        f"WHERE u.user_id = '{participant.user_id}' "
+                                        "AND t.custom_glossary IS NOT NULL LIMIT 1"
+                                    ))).first()
+                                    if row and row[0]:
+                                        for entry in row[0]:
+                                            if isinstance(entry, dict) and "term" in entry:
+                                                glossary.append(GlossaryEntry(
+                                                    source_term=entry["term"],
+                                                    translations=entry.get("translations", {}),
+                                                ))
+                            except Exception:
+                                pass
+                            translations = apply_glossary_to_translations(translations, glossary)
                         else:
                             # Fallback to direct argos if router not initialized
                             from app.services.translation_service import translate_to_targets as argos_translate

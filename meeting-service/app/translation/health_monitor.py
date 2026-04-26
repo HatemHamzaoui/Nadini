@@ -72,6 +72,14 @@ class HealthMonitor:
         for result in results:
             if isinstance(result, Exception):
                 continue
+            # Update Prometheus gauge
+            try:
+                from app.core.metrics import PROVIDER_HEALTH
+                name, health = result
+                score = {"green": 1.0, "yellow": 0.5, "red": 0.0}.get(health.status.value, 0)
+                PROVIDER_HEALTH.labels(provider=name).set(score)
+            except Exception:
+                pass
             name, health = result
 
             # Store in Redis
