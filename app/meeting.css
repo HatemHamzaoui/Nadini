@@ -657,6 +657,32 @@
   .btn-danger-sm { display: none; }
 }
 
+/* Screen Share */
+.screen-share-container {
+  border-bottom: 1px solid var(--lx-border);
+  background: #000;
+  position: relative;
+}
+.screen-share-container.hidden { display: none; }
+.screen-share-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--lx-bg-alt);
+  border-bottom: 1px solid var(--lx-border);
+}
+.screen-share-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--lx-green);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+#screenShareVideo {
+  width: 100%;
+  max-height: 40vh;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
 /* ASR Badge */
 .asr-badge {
   display: flex; align-items: center; gap: 5px;

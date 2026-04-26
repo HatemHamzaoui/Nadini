@@ -471,25 +471,81 @@
     });
   }
 
+  // ── Screen Sharing ──
+  const shareBtn = document.getElementById("shareBtn");
+  const stopShareBtn = document.getElementById("stopShareBtn");
+  const screenContainer = document.getElementById("screenShareContainer");
+  const screenVideo = document.getElementById("screenShareVideo");
+  let screenStream = null;
+
+  async function toggleScreenShare() {
+    if (screenStream) {
+      stopScreenShare();
+      return;
+    }
+    try {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: "always" },
+        audio: false,
+      });
+      screenVideo.srcObject = screenStream;
+      screenContainer.classList.remove("hidden");
+      shareBtn.classList.add("ctrl-btn-active");
+
+      // Track ended (user clicks browser "Stop sharing")
+      screenStream.getVideoTracks()[0].onended = () => stopScreenShare();
+
+      if (typeof toast !== "undefined") toast.info("Bildschirmfreigabe aktiv");
+
+      // Notify participants via WebSocket
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "status_update", status: "sharing" }));
+      }
+    } catch (err) {
+      if (err.name !== "NotAllowedError") {
+        if (typeof toast !== "undefined") toast.error("Bildschirmfreigabe fehlgeschlagen");
+      }
+    }
+  }
+
+  function stopScreenShare() {
+    if (screenStream) {
+      screenStream.getTracks().forEach(t => t.stop());
+      screenStream = null;
+    }
+    screenVideo.srcObject = null;
+    screenContainer.classList.add("hidden");
+    shareBtn.classList.remove("ctrl-btn-active");
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: "status_update", status: "speaking" }));
+    }
+  }
+
+  if (shareBtn) shareBtn.addEventListener("click", toggleScreenShare);
+  if (stopShareBtn) stopShareBtn.addEventListener("click", stopScreenShare);
+
   // ── Keyboard Shortcuts ──
   document.addEventListener("keydown", (e) => {
-    // Don't trigger when typing in inputs
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
 
     switch (e.key.toLowerCase()) {
-      case "m": // Toggle mic
+      case "m":
         e.preventDefault();
         toggleMic();
         break;
-      case "c": // Toggle captions
+      case "c":
         e.preventDefault();
         if (captionBtn) captionBtn.click();
         break;
-      case "d": // Download transcript
+      case "s":
+        e.preventDefault();
+        toggleScreenShare();
+        break;
+      case "d":
         e.preventDefault();
         if (downloadBtn) downloadBtn.click();
         break;
-      case "i": // Open invite
+      case "i":
         e.preventDefault();
         if (document.getElementById("inviteModal")) {
           document.getElementById("inviteModal").classList.remove("hidden");
