@@ -494,6 +494,18 @@
   color: var(--lx-text-muted);
 }
 
+/* Recording active state */
+.ctrl-btn-recording {
+  background: rgba(239,68,68,0.15) !important;
+  border-color: rgba(239,68,68,0.4) !important;
+  color: var(--lx-red) !important;
+  animation: pulse-record 1.5s ease-in-out infinite;
+}
+@keyframes pulse-record {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+
 .ctrl-btn-active {
   background: var(--lx-gold-bg) !important;
   border-color: var(--lx-gold-border) !important;

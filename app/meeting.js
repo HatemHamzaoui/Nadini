@@ -162,6 +162,8 @@
   const endMeetingBtn = document.getElementById("endMeetingBtn");
   async function endMeeting() {
     if (!confirm("Meeting beenden?")) return;
+    // Stop recording if active
+    if (isRecording) stopRecording();
     if (isLive && meetingId) {
       try {
         const token = localStorage.getItem("nadini-access-token");
@@ -535,6 +537,75 @@
     });
   }
 
+  // ── Recording ──
+  const recordBtn = document.getElementById("recordBtn");
+  let mediaRecorder = null;
+  let recordedChunks = [];
+  let isRecording = false;
+
+  async function toggleRecording() {
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
+
+    // Use the existing mic stream from AudioCapture, or request new one
+    let stream = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      if (typeof toast !== "undefined") toast.error("Mikrofon-Zugriff für Aufnahme nötig");
+      return;
+    }
+
+    recordedChunks = [];
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+      ? "audio/webm;codecs=opus"
+      : "audio/webm";
+
+    try {
+      mediaRecorder = new MediaRecorder(stream, { mimeType });
+    } catch (e) {
+      if (typeof toast !== "undefined") toast.error("Aufnahme nicht unterstützt");
+      return;
+    }
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const name = document.querySelector(".meeting-room-title")?.textContent || "meeting";
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `nadini-recording-${name.replace(/\s+/g, "-").toLowerCase()}-${date}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (typeof toast !== "undefined") toast.success("Aufnahme heruntergeladen");
+      stream.getTracks().forEach(t => t.stop());
+    };
+
+    mediaRecorder.start(1000); // 1s chunks
+    isRecording = true;
+    if (recordBtn) recordBtn.classList.add("ctrl-btn-recording");
+    if (typeof toast !== "undefined") toast.info("Aufnahme gestartet");
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    isRecording = false;
+    if (recordBtn) recordBtn.classList.remove("ctrl-btn-recording");
+  }
+
+  if (recordBtn) recordBtn.addEventListener("click", toggleRecording);
+
   // ── Screen Sharing ──
   const shareBtn = document.getElementById("shareBtn");
   const stopShareBtn = document.getElementById("stopShareBtn");
@@ -604,6 +675,10 @@
       case "s":
         e.preventDefault();
         toggleScreenShare();
+        break;
+      case "r":
+        e.preventDefault();
+        toggleRecording();
         break;
       case "d":
         e.preventDefault();
