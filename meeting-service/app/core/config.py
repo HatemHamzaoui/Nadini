@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     # Translation Providers
     mistral_api_key: str = ""
     seed_api_key: str = ""
+    deepl_api_key: str = ""
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    google_translate_api_key: str = ""
     health_check_interval_seconds: int = 30
 
     # Rate Limiting

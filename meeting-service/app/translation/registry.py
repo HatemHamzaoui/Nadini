@@ -8,7 +8,10 @@ from app.core.logging import get_logger
 from app.db.models import ProviderConfig
 from app.translation.base import TranslationProvider
 from app.translation.providers.argos_provider import ArgosProvider
+from app.translation.providers.deepl_provider import DeepLProvider
+from app.translation.providers.google_provider import GoogleTranslateProvider
 from app.translation.providers.mistral_mock import MistralMockProvider
+from app.translation.providers.openai_provider import OpenAIProvider
 from app.translation.providers.seed_mock import SeedMockProvider
 
 log = get_logger(__name__)
@@ -17,6 +20,9 @@ PROVIDER_CLASSES = {
     "argostranslate": ArgosProvider,
     "mistral": MistralMockProvider,
     "seed": SeedMockProvider,
+    "deepl": DeepLProvider,
+    "openai": OpenAIProvider,
+    "google": GoogleTranslateProvider,
 }
 
 
