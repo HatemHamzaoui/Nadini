@@ -89,6 +89,7 @@
               translations: [],
             };
             container.appendChild(createTranscriptEntry(fakeEntry));
+            setSpeaker(fakeEntry.speaker);
             if (autoScroll) container.scrollTop = container.scrollHeight;
           }
         }
@@ -375,6 +376,7 @@
       const entry = demoTranscript[entryIndex];
       container.appendChild(createTranscriptEntry(entry));
       updateCaptions(entry);
+      setSpeaker(entry.speaker);
       if (autoScroll) container.scrollTop = container.scrollHeight;
       entryIndex++;
       streamNextEntry();
@@ -399,6 +401,7 @@
         if (msg.type === "transcript") {
           container.appendChild(createTranscriptEntry(msg));
           updateCaptions(msg);
+          setSpeaker(msg.speaker);
           if (autoScroll) container.scrollTop = container.scrollHeight;
         } else if (msg.type === "participant_joined") {
           if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);
@@ -540,6 +543,76 @@
       if (chatUnread) chatUnread.classList.add("hidden");
     });
   }
+
+  // ── Speaker Highlighting + Speaking Time ──
+  const speakStatsBars = document.getElementById("speakStatsBars");
+  const speakTimes = {}; // {name: seconds}
+  let currentSpeaker = null;
+  let speakerInterval = null;
+
+  const speakerColors = ["var(--lx-gold)", "var(--lx-blue)", "var(--lx-green)", "var(--lx-purple)", "var(--lx-red)"];
+  let colorIndex = 0;
+  const speakerColorMap = {};
+
+  function getSpeakerColor(name) {
+    if (!speakerColorMap[name]) {
+      speakerColorMap[name] = speakerColors[colorIndex % speakerColors.length];
+      colorIndex++;
+    }
+    return speakerColorMap[name];
+  }
+
+  function setSpeaker(name) {
+    if (currentSpeaker === name) return;
+    currentSpeaker = name;
+
+    // Highlight participant in list
+    document.querySelectorAll(".participant-item").forEach(el => {
+      const nameEl = el.querySelector(".participant-name");
+      el.classList.toggle("speaking", nameEl && nameEl.textContent.includes(name));
+    });
+
+    // Highlight latest transcript entry
+    document.querySelectorAll(".transcript-entry").forEach(el => el.classList.remove("highlight-speaker"));
+    const entries = container.querySelectorAll(".transcript-entry");
+    if (entries.length > 0) {
+      const last = entries[entries.length - 1];
+      const speaker = last.querySelector(".transcript-speaker");
+      if (speaker && speaker.textContent === name) {
+        last.classList.add("highlight-speaker");
+      }
+    }
+  }
+
+  function trackSpeakTime(name) {
+    if (!speakTimes[name]) speakTimes[name] = 0;
+    speakTimes[name]++;
+    updateSpeakStats();
+  }
+
+  function updateSpeakStats() {
+    if (!speakStatsBars) return;
+    const total = Object.values(speakTimes).reduce((a, b) => a + b, 0) || 1;
+    const sorted = Object.entries(speakTimes).sort((a, b) => b[1] - a[1]);
+
+    speakStatsBars.innerHTML = sorted.map(([name, secs]) => {
+      const pct = Math.round((secs / total) * 100);
+      const mins = Math.floor(secs / 60);
+      const s = secs % 60;
+      const timeStr = mins > 0 ? `${mins}m${String(s).padStart(2, "0")}s` : `${s}s`;
+      const color = getSpeakerColor(name);
+      return `<div class="speak-stat-row">
+        <span class="speak-stat-name">${name}</span>
+        <div class="speak-stat-bar-wrap"><div class="speak-stat-bar" style="width:${pct}%;background:${color}"></div></div>
+        <span class="speak-stat-time">${timeStr}</span>
+      </div>`;
+    }).join("");
+  }
+
+  // Track speaking time every second when someone is speaking
+  speakerInterval = setInterval(() => {
+    if (currentSpeaker) trackSpeakTime(currentSpeaker);
+  }, 1000);
 
   // ── Shared Notes ──
   const notesEditor = document.getElementById("notesEditor");
