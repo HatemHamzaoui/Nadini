@@ -39,6 +39,13 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = "http://localhost:3000,http://localhost:8080"
 
+    # Mailer
+    mailer_driver: str = "console"  # "resend" or "console"
+    resend_api_key: str = ""
+    mail_from: str = "no-reply@nadini.ai"
+    mail_from_name: str = "Nadini"
+    frontend_base_url: str = "http://localhost:3000"
+
     # Rate Limiting
     meeting_create_rate_per_user: int = 10
     meeting_create_rate_window_seconds: int = 3600

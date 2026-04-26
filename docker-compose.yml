@@ -79,6 +79,11 @@ services:
       JWT_ISSUER: http://localhost:8001
       JWT_AUDIENCE: nadini
       CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+      MAILER_DRIVER: ${MAILER_DRIVER:-console}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: no-reply@nadini.ai
+      MAIL_FROM_NAME: Nadini
+      FRONTEND_BASE_URL: http://localhost:${FRONTEND_PORT:-3000}
     ports:
       - "8002:8002"
     depends_on:

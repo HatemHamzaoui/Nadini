@@ -11,7 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.compliance.audit import AuditAction, AuditEventCategory, write_audit
 from app.core.config import Settings
-from app.db.models import Meeting, MeetingParticipant
+from app.core.logging import get_logger
+from app.db.models import Meeting, MeetingParticipant, User
+
+log = get_logger(__name__)
 from app.domain.errors import MeetingEnded, MeetingNotFound, NotAuthorized, RateLimitExceeded
 from app.services.rate_limiter import RateLimiter
 
@@ -89,6 +92,31 @@ class MeetingService:
             extra_data={"meeting_id": str(meeting.meeting_id), "join_code": join_code},
         )
         await session.commit()
+
+        # Send invitation emails (fire-and-forget, don't block meeting creation)
+        if invited_emails:
+            try:
+                from app.services.mailer import send_meeting_invites
+                join_url = f"{self._settings.frontend_base_url}/app/join.html?m={meeting.meeting_id}"
+                # Get owner email for host_name
+                owner = (await session.execute(
+                    select(User).where(User.user_id == owner_id)
+                )).scalar_one_or_none()
+                host_name = owner.email.split("@")[0] if owner else "Host"
+
+                await send_meeting_invites(
+                    emails=invited_emails,
+                    meeting_name=name,
+                    join_url=join_url,
+                    source_lang=source_lang,
+                    target_langs=target_langs,
+                    scheduled_at=scheduled_at,
+                    description=description,
+                    host_name=host_name,
+                )
+            except Exception as exc:
+                log.warning("invite_emails_failed", error=str(exc))
+
         return meeting
 
     async def list_meetings(
