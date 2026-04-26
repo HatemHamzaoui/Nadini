@@ -2,7 +2,7 @@
  * Nadini — Service Worker
  * Cache-first for static assets, network-first for HTML pages.
  */
-const CACHE_NAME = "nadini-v2";
+const CACHE_NAME = "nadini-v3";
 
 const PRECACHE = [
   "/assets/favicon.svg",
@@ -18,6 +18,7 @@ const PRECACHE = [
   "/app/settings.js",
   "/app/toast.js",
   "/app/config.js",
+  "/app/audio-capture.js",
   "/app/meetings-live.js",
   "/app/transcripts-live.js",
   "/landing/style.css",

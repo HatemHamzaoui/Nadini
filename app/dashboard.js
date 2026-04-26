@@ -95,7 +95,8 @@
             display_name: displayName, language: source,
           });
           if (typeof toast !== "undefined") toast.success(`Meeting "${name}" gestartet`);
-          setTimeout(() => { window.location.href = `meeting.html?id=${meeting.meeting_id}`; }, 600);
+          localStorage.setItem("nadini-meeting-lang", source);
+          setTimeout(() => { window.location.href = `meeting.html?id=${meeting.meeting_id}&lang=${source}`; }, 600);
         } else {
           if (typeof toast !== "undefined") toast.success(`Meeting "${name}" wird gestartet…`);
           setTimeout(() => { window.location.href = "meeting.html"; }, 800);

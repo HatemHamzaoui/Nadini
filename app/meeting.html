@@ -38,6 +38,10 @@
         <span class="ai-dot"></span>
         <span data-i18n="meeting.ai_active">KI-Übersetzung aktiv</span>
       </div>
+      <div class="asr-badge hidden" id="asrBadge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/></svg>
+        <span id="asrLabel">Browser ASR</span>
+      </div>
       <div class="lang-switcher">
         <button class="lang-btn active" data-lang="de">DE</button>
         <button class="lang-btn" data-lang="en">EN</button>
@@ -261,6 +265,7 @@
   <script src="toast.js"></script>
   <script src="i18n-app.js"></script>
   <script src="config.js"></script>
+  <script src="audio-capture.js"></script>
   <script src="meeting.js"></script>
 </body>
 </html>

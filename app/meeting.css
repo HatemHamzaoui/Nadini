@@ -657,6 +657,25 @@
   .btn-danger-sm { display: none; }
 }
 
+/* ASR Badge */
+.asr-badge {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: var(--lx-radius-full);
+  background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2);
+  font-size: 10px; font-weight: 600; color: var(--lx-purple);
+}
+.asr-badge svg { flex-shrink: 0; }
+
+/* Interim speech text in captions */
+.caption-interim .caption-text {
+  opacity: 0.6; font-style: italic;
+}
+
+/* Mic denied state */
+.mic-denied {
+  opacity: 0.4 !important; pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .audio-bar, .typing-dot, .live-dot, .ai-dot, .demo-dot-live { animation: none !important; }
 }

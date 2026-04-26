@@ -121,15 +121,41 @@
     const email = localStorage.getItem("nadini-user-email");
     if (email) document.getElementById("joinName").value = email.split("@")[0];
 
-    // Mic test animation
+    // Mic test — real getUserMedia if available
     const micBars = document.querySelectorAll("#joinAudioBars span");
-    function animateMicBars() {
-      micBars.forEach(bar => {
-        bar.style.height = (Math.random() * 16 + 4) + "px";
-      });
-      requestAnimationFrame(() => setTimeout(animateMicBars, 120));
-    }
-    animateMicBars();
+    const micStatus = document.querySelector(".join-audio-status");
+
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = ctx.createMediaStreamSource(stream);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 32;
+        src.connect(analyser);
+        const freq = new Uint8Array(analyser.frequencyBinCount);
+
+        if (micStatus) { micStatus.textContent = "Mikrofon aktiv"; micStatus.style.color = "var(--lx-green)"; }
+
+        function drawBars() {
+          analyser.getByteFrequencyData(freq);
+          micBars.forEach((bar, i) => {
+            const val = i < freq.length ? freq[i] : 0;
+            bar.style.height = Math.max(4, (val / 255) * 20) + "px";
+          });
+          requestAnimationFrame(drawBars);
+        }
+        drawBars();
+      } catch (e) {
+        // Fallback: simulated
+        if (micStatus) { micStatus.textContent = "Mikrofon blockiert"; micStatus.style.color = "var(--lx-red)"; }
+        function animateMicBars() {
+          micBars.forEach(bar => { bar.style.height = (Math.random() * 16 + 4) + "px"; });
+          requestAnimationFrame(() => setTimeout(animateMicBars, 120));
+        }
+        animateMicBars();
+      }
+    })();
 
     // Join button
     document.getElementById("joinBtn").addEventListener("click", async () => {
@@ -152,7 +178,7 @@
           });
           if (!res.ok) throw new Error("join_failed");
           const data = await res.json();
-          window.location.href = `meeting.html?id=${data.meeting_id}`;
+          window.location.href = `meeting.html?id=${data.meeting_id}&lang=${language}`;
         } catch (e) {
           btn.disabled = false;
           btn.innerHTML = '<span>Fehler — erneut versuchen</span>';

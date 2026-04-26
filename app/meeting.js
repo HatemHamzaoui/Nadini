@@ -27,20 +27,101 @@
     timerEl.textContent = `${m}:${s}`;
   }, 1000);
 
-  // ── Audio Visualizer (simulated) ──
+  // ── Audio Capture (real mic + ASR) ──
   const bars = document.querySelectorAll(".audio-bar");
   let micActive = true;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const meetingLang = params.get("lang") || localStorage.getItem("nadini-meeting-lang") || "de";
+  let audioReady = false;
 
-  function animateBars() {
-    if (prefersReducedMotion) { bars.forEach(b => b.style.height = "12px"); return; }
-    bars.forEach(bar => {
-      const h = micActive ? Math.random() * 28 + 4 : 4;
-      bar.style.height = h + "px";
+  // Initialize real audio capture
+  if (typeof AudioCapture !== "undefined" && AudioCapture.isSupported().visualizer) {
+    AudioCapture.init({ lang: meetingLang }).then((status) => {
+      audioReady = true;
+
+      // Show ASR badge
+      const asrBadge = document.getElementById("asrBadge");
+      if (asrBadge && status.hasASR) {
+        asrBadge.classList.remove("hidden");
+      }
+
+      // Real visualizer data → bars
+      AudioCapture.onVisualizerData((freqData) => {
+        if (prefersReducedMotion) return;
+        const binCount = Math.min(freqData.length, bars.length);
+        for (let i = 0; i < bars.length; i++) {
+          const val = i < binCount ? freqData[i] : 0;
+          bars[i].style.height = Math.max(4, (val / 255) * 32) + "px";
+        }
+      });
+
+      // Speech recognition results → WebSocket or local transcript
+      AudioCapture.onResult(({ text, lang, isFinal, confidence }) => {
+        // Update interim captions
+        if (captionsOn && captionsOverlay) {
+          const origText = captionsOverlay.querySelector("#captionOriginal .caption-text");
+          const origLang = captionsOverlay.querySelector("#captionOriginal .caption-lang");
+          if (origText && origLang) {
+            origLang.textContent = lang.toUpperCase();
+            origText.textContent = text;
+            document.getElementById("captionOriginal").classList.toggle("caption-interim", !isFinal);
+          }
+        }
+
+        // On final result → send transcript
+        if (isFinal && text.trim()) {
+          const entry = {
+            type: "transcript_submit",
+            text: text.trim(),
+            lang: lang,
+            translations: [],
+          };
+
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(entry));
+          } else {
+            // Demo mode: render locally
+            const fakeEntry = {
+              speaker: localStorage.getItem("nadini-user-email")?.split("@")[0] || "Du",
+              time: timerEl.textContent,
+              lang: lang.toUpperCase(),
+              text: text.trim(),
+              translations: [],
+            };
+            container.appendChild(createTranscriptEntry(fakeEntry));
+            if (autoScroll) container.scrollTop = container.scrollHeight;
+          }
+        }
+      });
+
+      // Start with mic active
+      AudioCapture.start();
+
+      if (typeof toast !== "undefined" && status.hasASR) {
+        toast.info("Spracherkennung aktiv");
+      } else if (typeof toast !== "undefined" && !status.hasASR) {
+        toast.info("Spracherkennung nicht verfügbar — Demo-Modus");
+      }
+    }).catch(() => {
+      // Fallback: simulated bars
+      startSimulatedBars();
     });
-    requestAnimationFrame(() => setTimeout(animateBars, 80));
+  } else {
+    startSimulatedBars();
   }
-  animateBars();
+
+  // Simulated bars fallback
+  function startSimulatedBars() {
+    function animateBars() {
+      if (prefersReducedMotion) { bars.forEach(b => b.style.height = "12px"); return; }
+      bars.forEach(bar => {
+        const h = micActive ? Math.random() * 28 + 4 : 4;
+        bar.style.height = h + "px";
+      });
+      requestAnimationFrame(() => setTimeout(animateBars, 80));
+    }
+    animateBars();
+  }
 
   // ── Mic Toggle ──
   const micMainBtn = document.getElementById("micMainBtn");
@@ -54,6 +135,11 @@
     // Send status to WebSocket
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: "status_update", status: micActive ? "speaking" : "muted" }));
+    }
+    // Toggle real audio capture
+    if (audioReady && typeof AudioCapture !== "undefined") {
+      if (micActive) AudioCapture.start();
+      else AudioCapture.stop();
     }
     if (micMainBtn) {
       micMainBtn.querySelector(".mic-on").classList.toggle("hidden", !micActive);
