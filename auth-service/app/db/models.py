@@ -49,6 +49,14 @@ class Tenant(Base):
     # AI-Act-Risk-Tier (Hybrid-Modell)
     risk_tier: Mapped[str] = mapped_column(String(30), nullable=False, default="standard")
 
+    # Onboarding
+    logo_url: Mapped[str | None] = mapped_column(String(500))
+    default_source_lang: Mapped[str | None] = mapped_column(String(10), server_default="de")
+    default_target_langs: Mapped[list | None] = mapped_column(JSONB)
+    custom_glossary: Mapped[list | None] = mapped_column(JSONB)
+    max_users: Mapped[int | None] = mapped_column(Integer)
+    plan: Mapped[str] = mapped_column(String(20), nullable=False, server_default="starter")
+
     # Frei deklarierter Use-Case beim Onboarding
     use_case_category: Mapped[str | None] = mapped_column(String(100))
     use_case_description: Mapped[str | None] = mapped_column(String(1000))

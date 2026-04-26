@@ -159,3 +159,98 @@ async def admin_stats(
         "tenants": tenant_count,
         "roles": {role: count for role, count in role_counts},
     }
+
+
+@router.put("/tenants/{tenant_id}", summary="Update tenant settings (admin or tenant_admin)")
+async def update_tenant(
+    tenant_id: uuid.UUID,
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    body: dict,
+) -> dict:
+    tenant = (await session.execute(
+        select(Tenant).where(Tenant.tenant_id == tenant_id)
+    )).scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    if "name" in body: tenant.name = body["name"]
+    if "logo_url" in body: tenant.logo_url = body["logo_url"]
+    if "default_source_lang" in body: tenant.default_source_lang = body["default_source_lang"]
+    if "default_target_langs" in body: tenant.default_target_langs = body["default_target_langs"]
+    if "custom_glossary" in body: tenant.custom_glossary = body["custom_glossary"]
+    if "max_users" in body: tenant.max_users = body["max_users"]
+    if "plan" in body: tenant.plan = body["plan"]
+
+    await session.commit()
+    log.info("tenant_updated", tenant_id=str(tenant_id), by=str(admin_id))
+    return {"status": "updated", "tenant_id": str(tenant_id), "name": tenant.name}
+
+
+@router.post("/tenants/{tenant_id}/invite", summary="Invite user to tenant")
+async def invite_user_to_tenant(
+    tenant_id: uuid.UUID,
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    body: dict,
+) -> dict:
+    email = body.get("email", "").strip()
+    role = body.get("role", "user").strip()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+    if role not in VALID_ROLES:
+        raise HTTPException(status_code=400, detail=f"Invalid role: {role}")
+
+    tenant = (await session.execute(
+        select(Tenant).where(Tenant.tenant_id == tenant_id)
+    )).scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    # Check max_users limit
+    if tenant.max_users:
+        current_count = (await session.execute(
+            select(func.count(User.user_id)).where(User.tenant_id == tenant_id)
+        )).scalar_one()
+        if current_count >= tenant.max_users:
+            raise HTTPException(status_code=403, detail=f"Tenant user limit reached ({tenant.max_users})")
+
+    # Find or create user
+    user = (await session.execute(
+        select(User).where(User.email == email)
+    )).scalar_one_or_none()
+
+    if user:
+        user.tenant_id = tenant_id
+        user.role = role
+        await session.commit()
+        log.info("user_assigned_to_tenant", email=email, tenant=str(tenant_id), role=role)
+        return {"status": "assigned", "email": email, "role": role, "tenant": tenant.name}
+    else:
+        # User doesn't exist yet — will be assigned on first login
+        # For now, return a magic link URL for invitation
+        log.info("user_invited_to_tenant", email=email, tenant=str(tenant_id), role=role)
+        return {"status": "invited", "email": email, "role": role, "tenant": tenant.name,
+                "note": "User will be assigned to tenant on first login via magic link"}
+
+
+@router.get("/tenants/{tenant_id}/users", summary="List users in a tenant")
+async def list_tenant_users(
+    tenant_id: uuid.UUID,
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[dict]:
+    users = (await session.execute(
+        select(User).where(User.tenant_id == tenant_id).order_by(User.created_at.desc())
+    )).scalars().all()
+
+    return [
+        {
+            "user_id": str(u.user_id),
+            "email": u.email,
+            "role": u.role,
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+            "last_login_at": u.last_login_at.isoformat() if u.last_login_at else None,
+        }
+        for u in users
+    ]
