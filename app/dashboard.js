@@ -107,13 +107,29 @@
     });
   }
 
-  // ── Load Recent Meetings (Live Mode) ──
+  // ── Load Stats + Recent Meetings (Live Mode) ──
   if (isLive) {
+    // Stats
+    (async () => {
+      try {
+        const stats = await apiGet(cfg.MEETING_API_BASE, "/meetings/stats");
+        const s = document.getElementById("statMeetings");
+        const h = document.getElementById("statHours");
+        const l = document.getElementById("statLangs");
+        const p = document.getElementById("statParticipants");
+        if (s) s.textContent = stats.meetings;
+        if (h) h.textContent = stats.hours + "h";
+        if (l) l.textContent = stats.languages_used;
+        if (p) p.textContent = stats.participants;
+      } catch (e) { /* keep demo data */ }
+    })();
+
+    // Recent Meetings
     (async () => {
       try {
         const meetings = await apiGet(cfg.MEETING_API_BASE, "/meetings");
-        const statEl = document.getElementById("statMeetings");
-        if (statEl) statEl.textContent = meetings.length;
+        const statEl = document.getElementById("statMeetings"); // fallback if stats failed
+        if (statEl && statEl.textContent === "12") statEl.textContent = meetings.length;
 
         // Update recent meetings list
         const list = document.querySelector(".meeting-list");

@@ -97,6 +97,68 @@ async def list_meetings(
 
 
 @router.get(
+    "/stats",
+    summary="Get meeting statistics for the current user",
+)
+async def get_stats(
+    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict:
+    from sqlalchemy import distinct, func, select
+
+    from app.db.models import Meeting, MeetingParticipant
+
+    user_meetings = (
+        select(Meeting.meeting_id).where(
+            (Meeting.owner_id == user_id)
+            | Meeting.meeting_id.in_(
+                select(MeetingParticipant.meeting_id).where(MeetingParticipant.user_id == user_id)
+            )
+        )
+    ).subquery()
+
+    meeting_count = (await session.execute(select(func.count()).select_from(user_meetings))).scalar_one()
+
+    total_duration = (await session.execute(
+        select(func.coalesce(func.sum(func.extract("epoch", Meeting.ended_at) - func.extract("epoch", Meeting.started_at)), 0))
+        .where(Meeting.meeting_id.in_(select(user_meetings.c.meeting_id)), Meeting.ended_at.isnot(None))
+    )).scalar_one()
+
+    participant_count = (await session.execute(
+        select(func.count(distinct(MeetingParticipant.participant_id)))
+        .where(MeetingParticipant.meeting_id.in_(select(user_meetings.c.meeting_id)))
+    )).scalar_one()
+
+    source_langs = (await session.execute(
+        select(distinct(Meeting.source_lang)).where(Meeting.meeting_id.in_(select(user_meetings.c.meeting_id)))
+    )).scalars().all()
+
+    target_langs_raw = (await session.execute(
+        select(Meeting.target_langs).where(Meeting.meeting_id.in_(select(user_meetings.c.meeting_id)))
+    )).scalars().all()
+
+    all_langs = set(source_langs)
+    for tl in target_langs_raw:
+        if isinstance(tl, list):
+            all_langs.update(tl)
+
+    pairs = (await session.execute(
+        select(Meeting.source_lang, Meeting.target_langs, func.count(Meeting.meeting_id).label("cnt"),
+               func.coalesce(func.sum(func.extract("epoch", Meeting.ended_at) - func.extract("epoch", Meeting.started_at)), 0).label("secs"))
+        .where(Meeting.meeting_id.in_(select(user_meetings.c.meeting_id)))
+        .group_by(Meeting.source_lang, Meeting.target_langs)
+        .order_by(func.count(Meeting.meeting_id).desc())
+    )).all()
+
+    language_pairs = []
+    for src, tgts, count, secs in pairs:
+        targets = ", ".join(t.upper() for t in tgts) if isinstance(tgts, list) else str(tgts)
+        language_pairs.append({"pair": f"{src.upper()} → {targets}", "meetings": count, "hours": round(secs / 3600, 1)})
+
+    return {"meetings": meeting_count, "hours": round(total_duration / 3600, 1), "languages_used": len(all_langs), "participants": participant_count, "language_pairs": language_pairs}
+
+
+@router.get(
     "/{meeting_id}",
     response_model=MeetingOut,
     summary="Get meeting details",
