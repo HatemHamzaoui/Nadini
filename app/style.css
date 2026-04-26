@@ -337,6 +337,22 @@ a:hover { text-decoration: underline; }
 }
 @keyframes pulse-live { 0%,100%{opacity:1}50%{opacity:.3} }
 
+/* Mode Selector */
+.mode-selector { display: flex; gap: 8px; }
+.mode-option {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border: 1px solid var(--lx-border);
+  border-radius: var(--lx-radius-lg); cursor: pointer;
+  transition: var(--lx-transition-fast); font-size: 13px;
+}
+.mode-option:hover { border-color: var(--lx-gold-border); }
+.mode-option-active, .mode-option:has(input:checked) {
+  border-color: var(--lx-gold); background: var(--lx-gold-bg);
+}
+.mode-option input { display: none; }
+.mode-icon { font-size: 18px; }
+.mode-label { font-weight: 500; color: var(--lx-text); }
+
 /* Widgets Grid */
 .widgets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0 0 20px; }
 .widget-card {

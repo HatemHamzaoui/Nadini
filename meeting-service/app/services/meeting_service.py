@@ -45,6 +45,7 @@ class MeetingService:
         scheduled_at: datetime | None = None,
         description: str | None = None,
         invited_emails: list[str] | None = None,
+        mode: str = "online",
     ) -> Meeting:
         # Rate limit
         if not await self._rate_limiter.hit(
@@ -76,6 +77,7 @@ class MeetingService:
             scheduled_at=scheduled_at,
             description=description,
             invited_emails=invited_emails,
+            mode=mode,
             started_at=None if is_scheduled else datetime.now(timezone.utc),
         )
         session.add(meeting)

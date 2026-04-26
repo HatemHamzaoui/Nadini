@@ -14,6 +14,7 @@ from redis.asyncio import Redis
 from app.api import deps
 from app.api.routes_meetings import router as meetings_router
 from app.api.routes_misc import router as misc_router
+from app.api.routes_providers import router as providers_router
 from app.api.routes_transcript import router as transcript_router
 from app.api.routes_ws import router as ws_router
 from app.core.config import get_settings
@@ -56,12 +57,29 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # WebSocket Manager
     deps.state.ws_manager = WebSocketManager()
 
-    # Translation packages (argostranslate)
+    # Translation Routing Engine
     try:
-        from app.services.translation_service import ensure_packages_installed
-        ensure_packages_installed()
+        from app.translation.health_monitor import HealthMonitor
+        from app.translation.registry import ProviderRegistry
+        from app.translation.router import TranslationRouter
+
+        registry = ProviderRegistry()
+        async with deps.state.session_factory() as session:
+            await registry.load_from_db(session)
+        registry.init_argos()  # Download argos packages if needed
+
+        health_monitor = HealthMonitor(registry, redis, interval=settings.health_check_interval_seconds)
+        translation_router = TranslationRouter(registry, health_monitor)
+        async with deps.state.session_factory() as session:
+            await translation_router.load_routes(session)
+
+        deps.state.provider_registry = registry
+        deps.state.health_monitor = health_monitor
+        deps.state.translation_router = translation_router
+
+        await health_monitor.start()
     except Exception as exc:
-        log.warning("translation_init_failed", error=str(exc))
+        log.warning("translation_engine_init_failed", error=str(exc))
 
     log.info("meeting_service_ready")
 
@@ -69,6 +87,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
     finally:
         log.info("meeting_service_shutting_down")
+        if deps.state.health_monitor:
+            await deps.state.health_monitor.stop()
         await redis.aclose()
         await engine.dispose()
 
@@ -117,6 +137,7 @@ def create_app() -> FastAPI:
     app.include_router(misc_router)
     app.include_router(meetings_router)
     app.include_router(transcript_router)
+    app.include_router(providers_router)
     app.include_router(ws_router)
 
     return app

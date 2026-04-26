@@ -254,6 +254,22 @@
             <label for="meetingInvites" data-i18n="dash.meeting.invites">Einladen per E-Mail (optional)</label>
             <input type="text" class="form-input" id="meetingInvites" data-i18n-placeholder="dash.meeting.invites_ph" placeholder="bob@firma.de, claire@example.fr">
           </div>
+          <!-- Meeting Mode -->
+          <div class="form-group">
+            <label data-i18n="dash.meeting.mode">Modus</label>
+            <div class="mode-selector">
+              <label class="mode-option mode-option-active">
+                <input type="radio" name="meetingMode" value="online" checked>
+                <span class="mode-icon">💻</span>
+                <span class="mode-label" data-i18n="dash.meeting.mode_online">Online Meeting</span>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="meetingMode" value="live">
+                <span class="mode-icon">🎙️</span>
+                <span class="mode-label" data-i18n="dash.meeting.mode_live">Live Meeting</span>
+              </label>
+            </div>
+          </div>
           <div class="meeting-form-actions">
             <button type="submit" class="btn btn-primary btn-block" id="startNowBtn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>

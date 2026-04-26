@@ -17,6 +17,7 @@ class CreateMeetingRequest(BaseModel):
     scheduled_at: datetime | None = None
     description: str | None = Field(default=None, max_length=1000)
     invited_emails: list[str] | None = None
+    mode: str = Field(default="online", pattern="^(live|online)$")
 
 
 class JoinMeetingRequest(BaseModel):
@@ -39,6 +40,7 @@ class MeetingOut(BaseModel):
     scheduled_at: datetime | None = None
     description: str | None = None
     invited_emails: list[str] | None = None
+    mode: str = "online"
     started_at: datetime | None = None
     ended_at: datetime | None = None
     created_at: datetime

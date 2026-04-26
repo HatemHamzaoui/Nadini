@@ -66,6 +66,7 @@ class Meeting(Base):
     scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     description: Mapped[str | None] = mapped_column(Text)
     invited_emails: Mapped[list | None] = mapped_column(JSONB)
+    mode: Mapped[str] = mapped_column(String(10), nullable=False, server_default="online")
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
@@ -152,6 +153,46 @@ class TranscriptSegment(Base):
     )
 
     meeting: Mapped[Meeting] = relationship(back_populates="segments")
+
+
+# ── Provider Config ───────────────────────────────────────────
+
+class ProviderConfig(Base):
+    __tablename__ = "provider_configs"
+
+    provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()
+    )
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    provider_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    api_url: Mapped[str | None] = mapped_column(String(500))
+    api_key_env: Mapped[str | None] = mapped_column(String(100))
+    supported_pairs: Mapped[list] = mapped_column(JSONB, nullable=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, server_default="10")
+    config_extra: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+
+# ── Language Route ────────────────────────────────────────────
+
+class LanguageRoute(Base):
+    __tablename__ = "language_routes"
+
+    route_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()
+    )
+    source_lang: Mapped[str] = mapped_column(String(10), nullable=False)
+    target_lang: Mapped[str] = mapped_column(String(10), nullable=False)
+    primary_provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("provider_configs.provider_id"), nullable=False
+    )
+    backup_provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("provider_configs.provider_id"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
 
 # ── Audit Log (shared table, read/write from meeting-service) ─

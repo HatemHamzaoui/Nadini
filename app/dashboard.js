@@ -85,6 +85,7 @@
       const invitedEmails = invitesVal ? invitesVal.split(",").map(e => e.trim()).filter(Boolean) : null;
       const scheduledAt = scheduleVal ? new Date(scheduleVal).toISOString() : null;
       const isScheduled = !!scheduledAt;
+      const meetingMode = document.querySelector('input[name="meetingMode"]:checked')?.value || "online";
 
       const btn = meetingForm.querySelector("button[type=submit]");
       btn.disabled = true;
@@ -93,7 +94,7 @@
         if (isLive) {
           const meeting = await apiPost(cfg.MEETING_API_BASE, "/meetings", {
             name, source_lang: source, target_langs: targets,
-            scheduled_at: scheduledAt, description: descVal, invited_emails: invitedEmails,
+            scheduled_at: scheduledAt, description: descVal, invited_emails: invitedEmails, mode: meetingMode,
           });
 
           if (isScheduled) {

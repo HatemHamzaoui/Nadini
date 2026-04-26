@@ -411,6 +411,9 @@
           container.appendChild(createTranscriptEntry(msg));
           updateCaptions(msg);
           setSpeaker(msg.speaker);
+          if (msg.failover && typeof toast !== "undefined") {
+            toast.info(`Übersetzung via Backup: ${msg.provider || "?"}`);
+          }
           if (autoScroll) container.scrollTop = container.scrollHeight;
         } else if (msg.type === "participant_joined") {
           if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);

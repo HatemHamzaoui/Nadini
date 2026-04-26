@@ -119,14 +119,23 @@ async def meeting_websocket(
                         (datetime.now(timezone.utc) - meeting.started_at).total_seconds() * 1000
                     )
 
-                # Translate to target languages
+                # Translate via Routing Engine
                 translations = msg.get("translations", [])
                 if not translations and meeting.target_langs:
                     try:
                         from app.services.glossary import apply_glossary_to_translations
-                        from app.services.translation_service import translate_to_targets
-                        translations = translate_to_targets(text, lang, meeting.target_langs)
-                        translations = apply_glossary_to_translations(translations)
+                        router = state.translation_router
+                        if router:
+                            translations = await router.translate_to_targets(
+                                text, lang, meeting.target_langs,
+                                mode=getattr(meeting, "mode", "online"),
+                            )
+                            translations = apply_glossary_to_translations(translations)
+                        else:
+                            # Fallback to direct argos if router not initialized
+                            from app.services.translation_service import translate_to_targets as argos_translate
+                            translations = argos_translate(text, lang, meeting.target_langs)
+                            translations = apply_glossary_to_translations(translations)
                     except Exception as exc:
                         log.warning("translation_error", error=str(exc))
 
@@ -156,6 +165,11 @@ async def meeting_websocket(
                     except Exception:
                         pass
 
+                    # Check if any translation used failover
+                    any_failover = any(t.get("failover") for t in translations if isinstance(t, dict))
+                    # Get provider name from first translation
+                    provider_used = translations[0].get("provider", "") if translations and isinstance(translations[0], dict) else ""
+
                     # Broadcast to all
                     await ws_mgr.broadcast(
                         meeting_id,
@@ -168,6 +182,8 @@ async def meeting_websocket(
                             "text": text,
                             "translations": translations,
                             "sentiment": sentiment_data,
+                            "provider": provider_used,
+                            "failover": any_failover,
                         },
                     )
 

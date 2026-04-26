@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     mail_from_name: str = "Nadini"
     frontend_base_url: str = "http://localhost:3000"
 
+    # Translation Providers
+    mistral_api_key: str = ""
+    seed_api_key: str = ""
+    health_check_interval_seconds: int = 30
+
     # Rate Limiting
     meeting_create_rate_per_user: int = 10
     meeting_create_rate_window_seconds: int = 3600

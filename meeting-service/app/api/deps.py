@@ -22,6 +22,9 @@ class AppState:
     rate_limiter: RateLimiter | None = None
     jwt_verifier: JWTVerifier | None = None
     ws_manager: WebSocketManager | None = None
+    translation_router: object | None = None  # TranslationRouter
+    health_monitor: object | None = None  # HealthMonitor
+    provider_registry: object | None = None  # ProviderRegistry
 
 
 state = AppState()

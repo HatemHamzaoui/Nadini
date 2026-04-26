@@ -55,6 +55,7 @@ async def create_meeting(
             scheduled_at=payload.scheduled_at,
             description=payload.description,
             invited_emails=payload.invited_emails,
+            mode=payload.mode,
         )
     except RateLimitExceeded:
         raise HTTPException(
@@ -93,6 +94,7 @@ async def list_meetings(
             scheduled_at=r["meeting"].scheduled_at,
             description=r["meeting"].description,
             invited_emails=r["meeting"].invited_emails,
+            mode=r["meeting"].mode,
             started_at=r["meeting"].started_at,
             ended_at=r["meeting"].ended_at,
             created_at=r["meeting"].created_at,
