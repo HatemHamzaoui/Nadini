@@ -151,6 +151,20 @@ async def meeting_websocket(
                         },
                     )
 
+            elif msg_type == "chat":
+                chat_text = msg.get("text", "").strip()
+                if chat_text:
+                    await ws_mgr.broadcast(
+                        meeting_id,
+                        {
+                            "type": "chat",
+                            "name": participant.display_name,
+                            "text": chat_text,
+                            "participant_id": str(participant.participant_id),
+                        },
+                        exclude=participant.participant_id,
+                    )
+
             elif msg_type == "status_update":
                 new_status = msg.get("status", "listening")
                 await ws_mgr.broadcast(

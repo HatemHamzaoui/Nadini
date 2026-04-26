@@ -201,6 +201,21 @@
           <span data-i18n="meeting.invite">Teilnehmer einladen</span>
         </button>
       </div>
+
+      <!-- Chat -->
+      <div class="meeting-control-card meeting-chat-card">
+        <div class="card-header-row">
+          <h3 data-i18n="meeting.chat">Chat</h3>
+          <span class="chat-unread hidden" id="chatUnread">0</span>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <form class="chat-input-form" id="chatForm">
+          <input type="text" class="form-input chat-input" id="chatInput" data-i18n-placeholder="meeting.chat_ph" placeholder="Nachricht…" autocomplete="off">
+          <button type="submit" class="chat-send-btn" aria-label="Senden">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </form>
+      </div>
     </aside>
   </div>
 

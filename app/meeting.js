@@ -402,6 +402,8 @@
           if (typeof toast !== "undefined") toast.info(`${msg.name} beigetreten`);
         } else if (msg.type === "participant_left") {
           if (typeof toast !== "undefined") toast.info(`${msg.name} hat verlassen`);
+        } else if (msg.type === "chat") {
+          handleChatMessage(msg);
         } else if (msg.type === "meeting_ended") {
           if (typeof toast !== "undefined") toast.info("Meeting beendet");
           setTimeout(() => { window.location.href = "dashboard.html"; }, 2000);
@@ -468,6 +470,68 @@
       URL.revokeObjectURL(url);
 
       if (typeof toast !== "undefined") toast.success("Transkript heruntergeladen");
+    });
+  }
+
+  // ── Chat ──
+  const chatForm = document.getElementById("chatForm");
+  const chatInput = document.getElementById("chatInput");
+  const chatMessages = document.getElementById("chatMessages");
+  const chatUnread = document.getElementById("chatUnread");
+  const myName = localStorage.getItem("nadini-user-email")?.split("@")[0] || "Du";
+  let unreadCount = 0;
+
+  function addChatMessage(name, text, time, isOwn) {
+    const el = document.createElement("div");
+    el.className = `chat-msg${isOwn ? " chat-msg-own" : ""}`;
+    el.innerHTML = `
+      <div class="chat-msg-header">
+        <span class="chat-msg-name">${name}</span>
+        <span class="chat-msg-time">${time}</span>
+      </div>
+      <div class="chat-msg-text">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+    `;
+    chatMessages.appendChild(el);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  if (chatForm) {
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      const time = timerEl.textContent;
+
+      // Send via WebSocket
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "chat", text, name: myName }));
+      }
+
+      // Show locally
+      addChatMessage(myName, text, time, true);
+      chatInput.value = "";
+    });
+  }
+
+  // Handle incoming chat (added to WS message handler below)
+  function handleChatMessage(msg) {
+    const time = timerEl.textContent;
+    addChatMessage(msg.name || "?", msg.text || "", time, false);
+
+    // Unread badge
+    unreadCount++;
+    if (chatUnread) {
+      chatUnread.textContent = unreadCount;
+      chatUnread.classList.remove("hidden");
+    }
+  }
+
+  // Clear unread when chat is visible
+  if (chatMessages) {
+    chatMessages.addEventListener("click", () => {
+      unreadCount = 0;
+      if (chatUnread) chatUnread.classList.add("hidden");
     });
   }
 

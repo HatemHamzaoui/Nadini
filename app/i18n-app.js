@@ -79,6 +79,9 @@ const translations = {
     "meeting.original": "Original",
     "meeting.participants": "Teilnehmer",
     "meeting.invite": "Teilnehmer einladen",
+    "meeting.chat": "Chat",
+    "meeting.chat_ph": "Nachricht…",
+    "meeting.sharing": "Bildschirmfreigabe",
 
     // Invite Modal
     "invite.title": "Teilnehmer einladen",
@@ -249,6 +252,9 @@ const translations = {
     "meeting.original": "Original",
     "meeting.participants": "Participants",
     "meeting.invite": "Invite participants",
+    "meeting.chat": "Chat",
+    "meeting.chat_ph": "Message…",
+    "meeting.sharing": "Screen sharing",
 
     "invite.title": "Invite participants",
     "invite.link_label": "Meeting link",
@@ -412,6 +418,9 @@ const translations = {
     "meeting.original": "Original",
     "meeting.participants": "Participants",
     "meeting.invite": "Inviter des participants",
+    "meeting.chat": "Chat",
+    "meeting.chat_ph": "Message…",
+    "meeting.sharing": "Partage d'écran",
 
     "invite.title": "Inviter des participants",
     "invite.link_label": "Lien de la réunion",
