@@ -192,6 +192,7 @@
           localStorage.setItem("nadini-access-token", data.access_token);
           localStorage.setItem("nadini-refresh-token", data.refresh_token);
           localStorage.setItem("nadini-user-email", data.user?.email || "");
+          localStorage.setItem("nadini-user-role", data.user?.role || "user");
 
           if (data.compliance?.ai_disclosure_required) {
             window.location.href = "disclosure.html";

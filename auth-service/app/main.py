@@ -13,6 +13,7 @@ from redis.asyncio import Redis
 
 from app.api import deps
 from app.api.routes_auth import router as auth_router
+from app.api.routes_admin import router as admin_router
 from app.api.routes_compliance import router as compliance_router
 from app.api.routes_misc import router as misc_router
 from app.core.config import get_settings
@@ -101,6 +102,7 @@ def create_app() -> FastAPI:
     app.include_router(misc_router)
     app.include_router(auth_router)
     app.include_router(compliance_router)
+    app.include_router(admin_router)
 
     return app
 

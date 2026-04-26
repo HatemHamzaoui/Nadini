@@ -272,6 +272,37 @@ class MeetingService:
         await session.commit()
         return meeting
 
+    async def force_end_meeting(
+        self,
+        session: AsyncSession,
+        *,
+        meeting_id: uuid.UUID,
+        ctx: RequestContext,
+    ) -> Meeting:
+        """End meeting without owner check (for admin/moderator)."""
+        meeting = (
+            await session.execute(select(Meeting).where(Meeting.meeting_id == meeting_id))
+        ).scalar_one_or_none()
+        if meeting is None:
+            raise MeetingNotFound("Meeting not found")
+        if meeting.status == "ended":
+            return meeting
+
+        meeting.status = "ended"
+        meeting.ended_at = datetime.now(timezone.utc)
+
+        await write_audit(
+            session,
+            event_category=AuditEventCategory.AI_INTERACTION,
+            action=AuditAction.MEETING_ENDED,
+            ip_address=ctx.ip_address,
+            user_agent=ctx.user_agent,
+            detail="Force-ended by moderator/admin",
+            extra_data={"meeting_id": str(meeting_id)},
+        )
+        await session.commit()
+        return meeting
+
     async def find_by_join_code(
         self, session: AsyncSession, *, join_code: str
     ) -> Meeting | None:

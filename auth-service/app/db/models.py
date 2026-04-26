@@ -88,6 +88,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(254), unique=True, nullable=False, index=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     ui_language: Mapped[str] = mapped_column(String(10), default="en", nullable=False)
+    role: Mapped[str] = mapped_column(String(20), nullable=False, server_default="user")
 
     tenant_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),

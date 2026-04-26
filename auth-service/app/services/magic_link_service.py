@@ -53,6 +53,7 @@ class VerifyResult:
     user_id: uuid.UUID
     email: str
     ui_language: str
+    role: str
     tenant_id: uuid.UUID | None
     tenant_risk_tier: str | None
     access_token: str
@@ -235,7 +236,8 @@ class MagicLinkService:
 
         # 5. JWTs ausstellen
         access_token = self._jwt.issue_access_token(
-            user_id=user.user_id, email=user.email, ui_language=user.ui_language
+            user_id=user.user_id, email=user.email, ui_language=user.ui_language,
+            role=user.role, tenant_id=user.tenant_id,
         )
         refresh_token, refresh_jti = self._jwt.issue_refresh_token(user.user_id)
 
@@ -282,6 +284,7 @@ class MagicLinkService:
             user_id=user.user_id,
             email=user.email,
             ui_language=user.ui_language,
+            role=user.role,
             tenant_id=user.tenant_id,
             tenant_risk_tier=tenant_risk_tier,
             access_token=access_token,
@@ -402,7 +405,8 @@ class MagicLinkService:
         ).scalar_one()
 
         new_access = self._jwt.issue_access_token(
-            user_id=user.user_id, email=user.email, ui_language=user.ui_language
+            user_id=user.user_id, email=user.email, ui_language=user.ui_language,
+            role=user.role, tenant_id=user.tenant_id,
         )
         new_refresh, new_jti = self._jwt.issue_refresh_token(user.user_id)
 

@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import current_user_id, get_session, state
+from app.api.deps import current_user_id, get_session, require_admin, state
 from app.db.models import LanguageRoute, ProviderConfig
 
 router = APIRouter(prefix="/providers", tags=["providers"], redirect_slashes=False)
@@ -66,7 +66,7 @@ async def health_dashboard(
 @router.put("/{provider_id}", summary="Update provider config")
 async def update_provider(
     provider_id: uuid.UUID,
-    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    user_id: Annotated[uuid.UUID, Depends(require_admin)],
     session: Annotated[AsyncSession, Depends(get_session)],
     body: dict,
 ) -> dict:
@@ -121,7 +121,7 @@ async def list_routes(
 async def set_route(
     source_lang: str,
     target_lang: str,
-    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    user_id: Annotated[uuid.UUID, Depends(require_admin)],
     session: Annotated[AsyncSession, Depends(get_session)],
     body: dict,
 ) -> dict:
@@ -161,7 +161,7 @@ async def set_route(
 @router.post("/{provider_id}/test", summary="Test provider with sample text")
 async def test_provider(
     provider_id: uuid.UUID,
-    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    user_id: Annotated[uuid.UUID, Depends(require_admin)],
     session: Annotated[AsyncSession, Depends(get_session)],
     body: dict,
 ) -> dict:

@@ -33,6 +33,8 @@ class JWTIssuer:
         user_id: uuid.UUID,
         email: str,
         ui_language: str,
+        role: str = "user",
+        tenant_id: uuid.UUID | None = None,
     ) -> str:
         now = int(time.time())
         claims = {
@@ -41,6 +43,8 @@ class JWTIssuer:
             "sub": str(user_id),
             "email": email,
             "ui_language": ui_language,
+            "role": role,
+            "tenant_id": str(tenant_id) if tenant_id else None,
             "iat": now,
             "nbf": now,
             "exp": now + self._access_ttl,

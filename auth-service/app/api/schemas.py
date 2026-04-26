@@ -35,6 +35,7 @@ class UserOut(BaseModel):
     user_id: uuid.UUID
     email: EmailStr
     ui_language: str
+    role: str = "user"
     tenant_id: uuid.UUID | None = None
     tenant_risk_tier: str | None = None
 

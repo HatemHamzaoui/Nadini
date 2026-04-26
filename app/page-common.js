@@ -15,12 +15,28 @@
     return;
   }
 
-  // ── User Info ──
+  // ── User Info + Role ──
   const email = localStorage.getItem("nadini-user-email") || "user@example.com";
+  const userRole = localStorage.getItem("nadini-user-role") || "user";
   const avatarEl = document.getElementById("userAvatar");
   const emailEl = document.getElementById("userEmail");
+  const roleEl = document.querySelector(".user-role");
   if (emailEl) emailEl.textContent = email;
   if (avatarEl) avatarEl.textContent = email.charAt(0).toUpperCase();
+
+  // Display dynamic role
+  const roleLabels = { admin: "🛡️ Admin", tenant_admin: "🏢 Tenant Admin", moderator: "👑 Moderator", interpreter: "🎙️ Dolmetscher", user: "Benutzer", guest: "Gast" };
+  if (roleEl) roleEl.textContent = roleLabels[userRole] || userRole;
+
+  // Hide admin-only elements for non-admins
+  document.querySelectorAll("[data-require-role]").forEach(el => {
+    const requiredRole = el.dataset.requireRole;
+    const allowed = requiredRole === "admin" ? userRole === "admin"
+      : requiredRole === "tenant_admin" ? ["admin", "tenant_admin"].includes(userRole)
+      : requiredRole === "moderator" ? ["admin", "tenant_admin", "moderator"].includes(userRole)
+      : true;
+    if (!allowed) el.style.display = "none";
+  });
 
   // ── Theme ──
   const themeToggle = document.getElementById("themeToggle");

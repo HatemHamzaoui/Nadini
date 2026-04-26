@@ -103,6 +103,7 @@ async def verify_magic_link(
             user_id=result.user_id,
             email=result.email,
             ui_language=result.ui_language,
+            role=result.role,
             tenant_id=result.tenant_id,
             tenant_risk_tier=result.tenant_risk_tier,
         ),
@@ -196,6 +197,7 @@ async def update_me(
         user_id=user.user_id,
         email=user.email,
         ui_language=user.ui_language,
+        role=user.role,
         tenant_id=user.tenant_id,
     )
 
@@ -241,6 +243,7 @@ async def get_me(
             user_id=user.user_id,
             email=user.email,
             ui_language=user.ui_language,
+            role=user.role,
             tenant_id=user.tenant_id,
             tenant_risk_tier=tenant_risk_tier,
         ),

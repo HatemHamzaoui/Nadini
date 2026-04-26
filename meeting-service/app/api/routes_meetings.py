@@ -9,7 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import (
     current_user_id,
+    current_user_with_role,
     get_meeting_service,
+    require_moderator_or_above,
+    require_not_guest,
     get_session,
     request_context,
 )
@@ -39,7 +42,7 @@ router = APIRouter(prefix="/meetings", tags=["meetings"], redirect_slashes=False
 )
 async def create_meeting(
     payload: CreateMeetingRequest,
-    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    user_id: Annotated[uuid.UUID, Depends(require_not_guest)],
     session: Annotated[AsyncSession, Depends(get_session)],
     svc: Annotated[MeetingService, Depends(get_meeting_service)],
     ctx: Annotated[RequestContext, Depends(request_context)],
@@ -245,13 +248,18 @@ async def join_meeting(
 )
 async def end_meeting(
     meeting_id: uuid.UUID,
-    user_id: Annotated[uuid.UUID, Depends(current_user_id)],
+    user_and_role: Annotated[tuple[uuid.UUID, str], Depends(current_user_with_role)],
     session: Annotated[AsyncSession, Depends(get_session)],
     svc: Annotated[MeetingService, Depends(get_meeting_service)],
     ctx: Annotated[RequestContext, Depends(request_context)],
 ) -> dict:
+    user_id, role = user_and_role
     try:
-        meeting = await svc.end_meeting(session, meeting_id=meeting_id, user_id=user_id, ctx=ctx)
+        # Admin and moderator can end any meeting
+        if role in ("admin", "moderator", "tenant_admin"):
+            meeting = await svc.force_end_meeting(session, meeting_id=meeting_id, ctx=ctx)
+        else:
+            meeting = await svc.end_meeting(session, meeting_id=meeting_id, user_id=user_id, ctx=ctx)
     except MeetingNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found")
     except NotAuthorized:

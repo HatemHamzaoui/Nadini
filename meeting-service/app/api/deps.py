@@ -71,6 +71,63 @@ async def current_user_id(
     return uuid.UUID(claims["sub"])
 
 
+# ── JWT with Role ──
+
+async def current_user_with_role(
+    authorization: Annotated[str | None, Header()] = None,
+    jwt: Annotated[JWTVerifier, Depends(get_jwt_verifier)] = None,
+) -> tuple[uuid.UUID, str]:
+    """Returns (user_id, role)."""
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization header.")
+    token = authorization.split(" ", 1)[1].strip()
+    try:
+        claims = jwt.decode(token)
+    except JWTVerifyError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {exc}")
+    return uuid.UUID(claims["sub"]), claims.get("role", "user")
+
+
+async def require_admin(
+    user_and_role: Annotated[tuple[uuid.UUID, str], Depends(current_user_with_role)],
+) -> uuid.UUID:
+    """403 if not admin."""
+    user_id, role = user_and_role
+    if role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required.")
+    return user_id
+
+
+async def require_moderator_or_above(
+    user_and_role: Annotated[tuple[uuid.UUID, str], Depends(current_user_with_role)],
+) -> uuid.UUID:
+    """403 if not moderator, tenant_admin, or admin."""
+    user_id, role = user_and_role
+    if role not in ("moderator", "tenant_admin", "admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Moderator or higher role required.")
+    return user_id
+
+
+async def require_interpreter_or_admin(
+    user_and_role: Annotated[tuple[uuid.UUID, str], Depends(current_user_with_role)],
+) -> uuid.UUID:
+    """403 if not interpreter or admin."""
+    user_id, role = user_and_role
+    if role not in ("interpreter", "admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Interpreter or admin role required.")
+    return user_id
+
+
+async def require_not_guest(
+    user_and_role: Annotated[tuple[uuid.UUID, str], Depends(current_user_with_role)],
+) -> uuid.UUID:
+    """403 if guest."""
+    user_id, role = user_and_role
+    if role == "guest":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Guests cannot perform this action.")
+    return user_id
+
+
 # ── JWT (WebSocket) ──
 
 async def ws_user_id(
