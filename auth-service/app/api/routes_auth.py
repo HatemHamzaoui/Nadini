@@ -259,3 +259,92 @@ async def get_me(
         email_verified=user.email_verified,
         last_login_at=user.last_login_at.isoformat() if user.last_login_at else None,
     )
+
+
+@router.get(
+    "/data-export",
+    summary="Export all user data (DSGVO Art. 15)",
+)
+async def data_export(
+    user_id: Annotated[str, Depends(current_user_id)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict:
+    """Export alle personenbezogenen Daten des angemeldeten Users."""
+    from sqlalchemy import select
+    from app.db.models import AIDisclosureAcknowledgment, AuditLog, User
+
+    user = (await session.execute(select(User).where(User.user_id == user_id))).scalar_one()
+
+    # Disclosures
+    disclosures = (await session.execute(
+        select(AIDisclosureAcknowledgment).where(AIDisclosureAcknowledgment.user_id == user_id)
+    )).scalars().all()
+
+    # Audit logs
+    audits = (await session.execute(
+        select(AuditLog).where(AuditLog.user_id == user_id).order_by(AuditLog.created_at.desc()).limit(500)
+    )).scalars().all()
+
+    return {
+        "user": {
+            "user_id": str(user.user_id),
+            "email": user.email,
+            "role": user.role,
+            "ui_language": user.ui_language,
+            "tenant_id": str(user.tenant_id) if user.tenant_id else None,
+            "email_verified": user.email_verified,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+        },
+        "disclosures": [
+            {"version": d.disclosure_version, "acknowledged_at": d.acknowledged_at.isoformat(),
+             "locale": d.locale}
+            for d in disclosures
+        ],
+        "audit_logs": [
+            {"action": a.action, "category": a.event_category,
+             "created_at": a.created_at.isoformat(), "ip": a.ip_address}
+            for a in audits
+        ],
+        "export_date": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+        "notice": "This export contains all personal data stored by Nadini (DSGVO Art. 15).",
+    }
+
+
+@router.delete(
+    "/account",
+    status_code=204,
+    summary="Delete user account and all data (DSGVO Art. 17)",
+)
+async def delete_account(
+    user_id: Annotated[str, Depends(current_user_id)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    ctx: Annotated[RequestContext, Depends(request_context)],
+) -> None:
+    """Löscht den User und alle zugehörigen Daten (Right to be Forgotten)."""
+    from sqlalchemy import delete, select
+    from app.db.models import AIDisclosureAcknowledgment, AuditLog, MagicLinkToken, RefreshToken, User
+
+    # Write final audit entry before deletion
+    await write_audit(
+        session,
+        event_category=AuditEventCategory.DATA_SUBJECT_REQUEST,
+        action="account.deleted",
+        user_id=user_id,
+        ip_address=ctx.ip_address,
+        user_agent=ctx.user_agent,
+        detail="User account deleted (DSGVO Art. 17)",
+        retention_override="permanent",
+    )
+
+    # Delete all user data
+    await session.execute(delete(AIDisclosureAcknowledgment).where(AIDisclosureAcknowledgment.user_id == user_id))
+    await session.execute(delete(RefreshToken).where(RefreshToken.user_id == user_id))
+    await session.execute(delete(MagicLinkToken).where(MagicLinkToken.user_id == user_id))
+    # Audit logs: keep permanent entries, delete standard
+    await session.execute(
+        delete(AuditLog).where(AuditLog.user_id == user_id, AuditLog.retention_class == "standard")
+    )
+    # Delete user
+    await session.execute(delete(User).where(User.user_id == user_id))
+    await session.commit()

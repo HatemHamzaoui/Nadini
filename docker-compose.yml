@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: nadini
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: devpass
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpass}
     ports:
       - "5432:5432"
     volumes:
@@ -31,6 +31,7 @@ services:
 
   # ── Auth Service (FastAPI) ──
   auth-service:
+    restart: unless-stopped
     build:
       context: ./auth-service
       dockerfile: Dockerfile
@@ -38,7 +39,7 @@ services:
       APP_NAME: nadini-auth
       APP_ENV: development
       LOG_FORMAT: console
-      DATABASE_URL: postgresql+asyncpg://admin:devpass@postgres:5432/nadini
+      DATABASE_URL: postgresql+asyncpg://admin:${POSTGRES_PASSWORD:-devpass}@postgres:5432/nadini
       REDIS_URL: redis://redis:6379/0
       JWT_PRIVATE_KEY_PATH: /secrets/jwt-private.pem
       JWT_PUBLIC_KEY_PATH: /secrets/jwt-public.pem
@@ -66,6 +67,7 @@ services:
 
   # ── Meeting Service (FastAPI + WebSocket) ──
   meeting-service:
+    restart: unless-stopped
     build:
       context: ./meeting-service
       dockerfile: Dockerfile
@@ -73,7 +75,7 @@ services:
       APP_NAME: nadini-meeting
       APP_ENV: development
       LOG_FORMAT: console
-      DATABASE_URL: postgresql+asyncpg://admin:devpass@postgres:5432/nadini
+      DATABASE_URL: postgresql+asyncpg://admin:${POSTGRES_PASSWORD:-devpass}@postgres:5432/nadini
       REDIS_URL: redis://redis:6379/1
       JWKS_URL: http://auth-service:8001/.well-known/jwks.json
       JWT_ISSUER: http://localhost:8001
@@ -111,6 +113,7 @@ services:
 
   # ── Audio Gateway (Whisper ASR) ──
   audio-gateway:
+    restart: unless-stopped
     build:
       context: ./audio-gateway
       dockerfile: Dockerfile
@@ -134,6 +137,7 @@ services:
 
   # ── Frontend (Static Files) ──
   frontend:
+    restart: unless-stopped
     image: nginx:alpine
     ports:
       - "${FRONTEND_PORT:-3000}:80"
@@ -165,7 +169,7 @@ services:
     ports:
       - "3100:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: nadini
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-nadini}
       GF_SECURITY_ADMIN_USER: admin
     volumes:
       - grafana_data:/var/lib/grafana

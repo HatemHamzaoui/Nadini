@@ -5,6 +5,9 @@
 (function () {
   "use strict";
 
+  // ── XSS Protection ──
+  function esc(str) { return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
   // ── Service Worker ──
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("../sw.js").catch(() => {});
@@ -407,13 +410,13 @@
 
     el.innerHTML = `
       <div class="transcript-header">
-        <span class="transcript-speaker">${entry.speaker}</span>
-        <span class="transcript-time">${entry.time}</span>
-        <span class="transcript-lang-tag ${tagClass}">${entry.lang} · ${langTag}</span>
+        <span class="transcript-speaker">${esc(entry.speaker)}</span>
+        <span class="transcript-time">${esc(entry.time)}</span>
+        <span class="transcript-lang-tag ${tagClass}">${esc(entry.lang)} · ${langTag}</span>
         ${autoDetectBadge}
         ${sentimentHTML}
       </div>
-      <p class="transcript-text">${entry.text}</p>
+      <p class="transcript-text">${esc(entry.text)}</p>
       ${translationsHTML}
     `;
 
@@ -490,11 +493,11 @@
           }
           existing.innerHTML = `
             <div class="transcript-header">
-              <span class="transcript-speaker">${msg.speaker}</span>
-              <span class="transcript-time">${msg.time}</span>
-              <span class="transcript-lang-tag tag-original">${msg.lang} · ···</span>
+              <span class="transcript-speaker">${esc(msg.speaker)}</span>
+              <span class="transcript-time">${esc(msg.time)}</span>
+              <span class="transcript-lang-tag tag-original">${esc(msg.lang)} · ···</span>
             </div>
-            <p class="transcript-text transcript-text-streaming">${msg.text}<span class="streaming-cursor">|</span></p>
+            <p class="transcript-text transcript-text-streaming">${esc(msg.text)}<span class="streaming-cursor">|</span></p>
           `;
           setSpeaker(msg.speaker);
           if (autoScroll) container.scrollTop = container.scrollHeight;

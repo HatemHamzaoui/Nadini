@@ -32,6 +32,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(settings)
 
+    # Sentry (optional)
+    from app.core.sentry import init_sentry
+    if init_sentry():
+        log.info("sentry_initialized")
+
     log.info("meeting_service_starting", env=settings.app_env)
 
     # DB
