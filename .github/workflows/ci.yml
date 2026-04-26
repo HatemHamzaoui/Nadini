@@ -105,5 +105,11 @@ jobs:
       - name: Build auth-service image
         run: docker build -t nadini-auth-service ./auth-service
 
-      - name: Verify image
-        run: docker run --rm nadini-auth-service python -c "from app.core.config import Settings; print('Config OK')"
+      - name: Build meeting-service image
+        run: docker build -t nadini-meeting-service ./meeting-service
+
+      - name: Verify auth-service
+        run: docker run --rm nadini-auth-service python -c "from app.core.config import Settings; print('Auth Config OK')"
+
+      - name: Verify meeting-service
+        run: docker run --rm nadini-meeting-service python -c "from app.core.config import Settings; print('Meeting Config OK')"

@@ -226,6 +226,7 @@
     </aside>
   </div>
 
+  <script src="config.js"></script>
   <script src="toast.js"></script>
   <script src="i18n-app.js"></script>
   <script>
@@ -336,6 +337,66 @@
     });
     const savedLang = localStorage.getItem("nadini-lang");
     if (savedLang && typeof setLanguage === "function") setLanguage(savedLang);
+
+    // ── Live Transcript Loading ──
+    (async () => {
+      const cfg = typeof NADINI_CONFIG !== "undefined" ? NADINI_CONFIG : { API_MODE: "demo" };
+      if (cfg.API_MODE !== "live") return;
+
+      const token = localStorage.getItem("nadini-access-token");
+      const meetingId = new URLSearchParams(window.location.search).get("id");
+      if (!token || token === "demo-access-token" || !meetingId) return;
+
+      try {
+        const res = await fetch(`${cfg.MEETING_API_BASE}/meetings/${meetingId}/transcript`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Update title
+        const titleEl = document.querySelector(".tv-title-group h1");
+        if (titleEl) titleEl.textContent = data.meeting.name;
+
+        // Update transcript
+        const container = document.getElementById("tvTranscript");
+        if (container && data.entries.length > 0) {
+          container.innerHTML = data.entries.map(e => `
+            <div class="tv-entry" data-lang-group="${e.lang.toLowerCase()}">
+              <div class="tv-entry-header">
+                <span class="tv-speaker">${e.speaker}</span>
+                <span class="tv-time">${e.time}</span>
+                <span class="transcript-lang-tag tag-translated">${e.lang} · AI</span>
+              </div>
+              <p class="tv-text">${e.text}</p>
+              ${e.translations && e.translations.length > 0 ? `
+                <div class="tv-translations">
+                  ${e.translations.map(t => `
+                    <div class="tv-translation" data-lang-group="${(t.lang || '').toLowerCase()}">
+                      <span class="translation-flag">${t.flag || ''}</span>
+                      <span class="translation-text">${t.text}</span>
+                    </div>
+                  `).join("")}
+                </div>` : ""}
+            </div>
+          `).join("");
+        }
+
+        // Update participants
+        const pList = document.querySelector(".tv-sidebar .participant-list");
+        if (pList && data.participants.length > 0) {
+          pList.innerHTML = data.participants.map(p => `
+            <div class="participant-item">
+              <div class="participant-avatar">${p.display_name.charAt(0).toUpperCase()}</div>
+              <div class="participant-info">
+                <span class="participant-name">${p.display_name}</span>
+                <span class="participant-lang">${p.language.toUpperCase()}</span>
+              </div>
+            </div>
+          `).join("");
+        }
+      } catch (e) { /* silent — keep demo data */ }
+    })();
   </script>
 </body>
 </html>

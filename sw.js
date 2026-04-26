@@ -18,6 +18,8 @@ const PRECACHE = [
   "/app/settings.js",
   "/app/toast.js",
   "/app/config.js",
+  "/app/meetings-live.js",
+  "/app/transcripts-live.js",
   "/landing/style.css",
   "/landing/i18n.js",
   "/landing/app.js",
