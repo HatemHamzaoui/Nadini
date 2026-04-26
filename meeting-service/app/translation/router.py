@@ -105,6 +105,8 @@ class TranslationRouter:
         source_lang: str,
         target_langs: list[str],
         mode: str = "online",
+        meeting_id: str | None = None,
+        speaker: str | None = None,
     ) -> list[dict]:
         """Translate text to multiple targets using routing engine.
 
@@ -112,15 +114,35 @@ class TranslationRouter:
         """
         timeout = 0.5 if mode == "live" else 2.0
 
+        # Update meeting context for LLM providers
+        context_prompt = None
+        if meeting_id:
+            from app.translation.context import get_meeting_context
+            ctx = get_meeting_context(meeting_id, source_lang)
+            ctx.add_segment(speaker or "?", text, source_lang)
+            context_prompt = ctx.build_translation_prompt(text, source_lang, "TARGET")
+
         async def translate_one(target: str) -> dict | None:
             if target == source_lang:
                 return None
             try:
                 provider, is_failover = await self._select_provider(source_lang, target, mode)
-                translated = await asyncio.wait_for(
-                    provider.translate(text, source_lang, target),
-                    timeout=timeout,
-                )
+
+                # LLM providers get contextual prompt
+                is_llm = provider.provider_type in ("openai", "claude", "deepseek")
+                if is_llm and context_prompt and meeting_id:
+                    from app.translation.context import get_meeting_context
+                    ctx = get_meeting_context(meeting_id, source_lang)
+                    enriched_text = ctx.build_translation_prompt(text, source_lang, target)
+                    translated = await asyncio.wait_for(
+                        provider.translate(enriched_text, source_lang, target),
+                        timeout=timeout,
+                    )
+                else:
+                    translated = await asyncio.wait_for(
+                        provider.translate(text, source_lang, target),
+                        timeout=timeout,
+                    )
                 if is_failover:
                     log.info("translation_failover", src=source_lang, tgt=target,
                              provider=provider.name)

@@ -260,6 +260,13 @@ class MeetingService:
         meeting.status = "ended"
         meeting.ended_at = datetime.now(timezone.utc)
 
+        # Cleanup translation context
+        try:
+            from app.translation.context import remove_meeting_context
+            remove_meeting_context(str(meeting_id))
+        except Exception:
+            pass
+
         await write_audit(
             session,
             event_category=AuditEventCategory.AI_INTERACTION,

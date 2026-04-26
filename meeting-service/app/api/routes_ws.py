@@ -152,6 +152,8 @@ async def meeting_websocket(
                             translations = await router.translate_to_targets(
                                 text, lang, meeting.target_langs,
                                 mode=getattr(meeting, "mode", "online"),
+                                meeting_id=str(meeting_id),
+                                speaker=participant.display_name,
                             )
                             translations = apply_glossary_to_translations(translations)
                         else:
@@ -196,6 +198,15 @@ async def meeting_websocket(
                     # Detect if language changed from meeting source
                     lang_changed = lang.lower() != meeting.source_lang.lower()
 
+                    # Get detected domain from context
+                    domain = "general"
+                    try:
+                        from app.translation.context import get_meeting_context
+                        ctx = get_meeting_context(str(meeting_id))
+                        domain = ctx.get_domain()
+                    except Exception:
+                        pass
+
                     # Broadcast final transcript (replaces any partial)
                     await ws_mgr.broadcast(
                         meeting_id,
@@ -211,6 +222,7 @@ async def meeting_websocket(
                             "text": text,
                             "translations": translations,
                             "sentiment": sentiment_data,
+                            "domain": domain,
                             "provider": provider_used,
                             "failover": any_failover,
                         },
