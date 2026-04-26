@@ -29,6 +29,7 @@ const NADINI_CONFIG = (function () {
       AUTH_API_BASE: "",
       MEETING_API_BASE: "",
       WS_BASE: `${wsProtocol}//${host}${port ? ":" + port : ""}`,
+      AUDIO_WS_BASE: `${wsProtocol}//${host}${port ? ":" + port : ""}`,
     };
   }
 

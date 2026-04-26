@@ -99,6 +99,29 @@ services:
         uvicorn app.main:app --host 0.0.0.0 --port 8002 --proxy-headers
       "
 
+  # ── Audio Gateway (Whisper ASR) ──
+  audio-gateway:
+    build:
+      context: ./audio-gateway
+      dockerfile: Dockerfile
+    environment:
+      WHISPER_MODEL: base
+      MEETING_SERVICE_URL: http://meeting-service:8002
+      JWKS_URL: http://auth-service:8001/.well-known/jwks.json
+      JWT_ISSUER: http://localhost:8001
+      JWT_AUDIENCE: nadini
+    ports:
+      - "8003:8003"
+    depends_on:
+      auth-service:
+        condition: service_started
+      meeting-service:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
   # ── Frontend (Static Files) ──
   frontend:
     image: nginx:alpine
@@ -116,6 +139,7 @@ services:
     depends_on:
       - auth-service
       - meeting-service
+      - audio-gateway
 
 volumes:
   postgres_data:

@@ -29,18 +29,23 @@ const AudioCapture = (function () {
   let vizAnimId = null;
   let participantLang = "de";
   let autoRestart = true;
+  let asrMode = "browser"; // "browser" or "server"
+  let serverWs = null;
+  let scriptProcessor = null;
 
   // ── Feature Detection ──
   function isSupported() {
     return {
       visualizer: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
       speechRecognition: !!((window.SpeechRecognition || window.webkitSpeechRecognition)),
+      serverWhisper: true, // Always available if audio-gateway is running
     };
   }
 
   // ── Initialize ──
   async function init(options = {}) {
     participantLang = options.lang || "de";
+    asrMode = options.asrMode || "browser"; // "browser" or "server"
 
     // Request microphone
     try {
@@ -105,9 +110,65 @@ const AudioCapture = (function () {
       };
     }
 
+    // Server Whisper mode: setup PCM streaming via ScriptProcessor
+    if (asrMode === "server" && audioCtx && mediaStream && options.wsBase && options.meetingId && options.token) {
+      const wsUrl = `${options.wsBase}/audio/ws?token=${encodeURIComponent(options.token)}&meeting_id=${encodeURIComponent(options.meetingId)}`;
+      try {
+        serverWs = new WebSocket(wsUrl);
+        serverWs.binaryType = "arraybuffer";
+
+        serverWs.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === "transcription" && resultCallback) {
+              resultCallback({
+                text: msg.text,
+                lang: msg.lang || participantLang,
+                isFinal: msg.is_final !== false,
+                confidence: msg.lang_probability || 0.8,
+              });
+            }
+          } catch (e) { /* ignore */ }
+        };
+
+        serverWs.onopen = () => {
+          console.log("AudioCapture: Server Whisper connected");
+          // Setup PCM capture via ScriptProcessor (deprecated but widely supported)
+          const source = audioCtx.createMediaStreamSource(mediaStream);
+          scriptProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
+          scriptProcessor.onaudioprocess = (e) => {
+            if (!isRunning || !serverWs || serverWs.readyState !== WebSocket.OPEN) return;
+            const input = e.inputBuffer.getChannelData(0);
+            // Downsample to 16kHz if needed
+            const targetRate = 16000;
+            const ratio = audioCtx.sampleRate / targetRate;
+            const downsampled = new Int16Array(Math.floor(input.length / ratio));
+            for (let i = 0; i < downsampled.length; i++) {
+              const idx = Math.floor(i * ratio);
+              downsampled[i] = Math.max(-1, Math.min(1, input[idx])) * 0x7FFF;
+            }
+            serverWs.send(downsampled.buffer);
+          };
+          source.connect(scriptProcessor);
+          scriptProcessor.connect(audioCtx.destination);
+        };
+
+        serverWs.onclose = () => {
+          console.log("AudioCapture: Server Whisper disconnected");
+        };
+
+        // In server mode, disable browser SpeechRecognition
+        recognition = null;
+      } catch (e) {
+        console.warn("AudioCapture: Server Whisper setup failed, falling back to browser ASR", e);
+        asrMode = "browser";
+      }
+    }
+
     return {
       hasMic: !!mediaStream,
-      hasASR: !!recognition,
+      hasASR: !!recognition || asrMode === "server",
+      asrMode: asrMode,
     };
   }
 
@@ -176,9 +237,13 @@ const AudioCapture = (function () {
     autoRestart = false;
     stop();
     if (recognition) { try { recognition.abort(); } catch (e) {} }
+    if (serverWs) { try { serverWs.close(); } catch (e) {} }
+    if (scriptProcessor) { try { scriptProcessor.disconnect(); } catch (e) {} }
     if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); }
     if (audioCtx) { audioCtx.close(); }
     recognition = null;
+    serverWs = null;
+    scriptProcessor = null;
     mediaStream = null;
     audioCtx = null;
     analyser = null;

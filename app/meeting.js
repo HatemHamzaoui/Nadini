@@ -34,15 +34,29 @@
   const meetingLang = params.get("lang") || localStorage.getItem("nadini-meeting-lang") || "de";
   let audioReady = false;
 
+  // Determine ASR mode: server Whisper for live meetings, browser for online
+  const meetingMode = params.get("mode") || "online";
+  const useServerWhisper = isLive && meetingMode === "live" && cfg.AUDIO_WS_BASE;
+  const asrInitMode = useServerWhisper ? "server" : "browser";
+
   // Initialize real audio capture
   if (typeof AudioCapture !== "undefined" && AudioCapture.isSupported().visualizer) {
-    AudioCapture.init({ lang: meetingLang }).then((status) => {
+    const initOpts = {
+      lang: meetingLang,
+      asrMode: asrInitMode,
+      wsBase: cfg.AUDIO_WS_BASE || "",
+      meetingId: meetingId || "",
+      token: localStorage.getItem("nadini-access-token") || "",
+    };
+    AudioCapture.init(initOpts).then((status) => {
       audioReady = true;
 
-      // Show ASR badge
+      // Show ASR badge with mode
       const asrBadge = document.getElementById("asrBadge");
+      const asrLabel = document.getElementById("asrLabel");
       if (asrBadge && status.hasASR) {
         asrBadge.classList.remove("hidden");
+        if (asrLabel) asrLabel.textContent = status.asrMode === "server" ? "Whisper ASR" : "Browser ASR";
       }
 
       // Real visualizer data → bars
