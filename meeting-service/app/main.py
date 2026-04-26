@@ -56,6 +56,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # WebSocket Manager
     deps.state.ws_manager = WebSocketManager()
 
+    # Translation packages (argostranslate)
+    try:
+        from app.services.translation_service import ensure_packages_installed
+        ensure_packages_installed()
+    except Exception as exc:
+        log.warning("translation_init_failed", error=str(exc))
+
     log.info("meeting_service_ready")
 
     try:

@@ -111,6 +111,15 @@ async def meeting_websocket(
                         (datetime.now(timezone.utc) - meeting.started_at).total_seconds() * 1000
                     )
 
+                # Translate to target languages
+                translations = msg.get("translations", [])
+                if not translations and meeting.target_langs:
+                    try:
+                        from app.services.translation_service import translate_to_targets
+                        translations = translate_to_targets(text, lang, meeting.target_langs)
+                    except Exception as exc:
+                        log.warning("translation_error", error=str(exc))
+
                 # Save segment
                 async with state.session_factory() as session:
                     segment = await transcript_svc.save_segment(
@@ -119,7 +128,7 @@ async def meeting_websocket(
                         participant_id=participant.participant_id,
                         text=text,
                         lang=lang,
-                        translations=msg.get("translations"),
+                        translations=translations or None,
                         offset_ms=offset_ms,
                     )
                     await session.commit()
@@ -138,7 +147,7 @@ async def meeting_websocket(
                             "time": time_str,
                             "lang": lang.upper(),
                             "text": text,
-                            "translations": msg.get("translations", []),
+                            "translations": translations,
                         },
                     )
 
