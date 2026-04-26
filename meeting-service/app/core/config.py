@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
     google_translate_api_key: str = ""
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-4-6"
+    papago_client_id: str = ""
+    papago_client_secret: str = ""
+    azure_translator_key: str = ""
+    azure_translator_region: str = "westeurope"
     health_check_interval_seconds: int = 30
 
     # Rate Limiting
