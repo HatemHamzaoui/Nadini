@@ -2,7 +2,9 @@
 
 **nadini.ai** — Real-time AI interpreting for meetings, conferences, and business communication.
 
-DSGVO-konform. AI-Act-ready. Mehrsprachig (DE / EN / FR).
+DSGVO-konform. AI-Act-ready. Mehrsprachig (DE / EN / FR). Open-Source-Übersetzung.
+
+[![CI](https://github.com/HatemHamzaoui/Nadini/actions/workflows/ci.yml/badge.svg)](https://github.com/HatemHamzaoui/Nadini/actions/workflows/ci.yml)
 
 ---
 
@@ -158,14 +160,31 @@ Landing Page
 - Provenance-Hinweis auf allen Transkripten
 
 ### Meeting Room
-- **Live-Transkript** mit simuliertem Streaming
-- **Untertitel-Overlay** (Toggle mit `C`)
-- **Audio-Visualizer** (20 animierte Bars)
-- **3 Sprachkanäle** (Original + 2 AI-Übersetzungen)
-- **Teilnehmer-Liste** mit Sprach- und Status-Anzeige
-- **Einladungs-Modal** (Link kopieren + E-Mail)
-- **Keyboard-Shortcuts**: `M` Mic, `C` Captions, `D` Download, `I` Invite, `Esc` Close
-- **Live-Transkript-Download** als TXT
+- **Echtzeit-Spracherkennung** via Web Speech API (Browser ASR)
+- **Echtzeit-Übersetzung** via argostranslate (offline, open-source)
+- **Echte Audio-Bars** via getUserMedia + AnalyserNode
+- **Live-Untertitel** mit Interim-Results (Toggle `C`)
+- **Screen-Sharing** via getDisplayMedia (Toggle `S`)
+- **Audio-Recording** via MediaRecorder → WebM Download (Toggle `R`)
+- **Webcam-Video** als Self-Preview (Toggle `V`)
+- **Text-Chat** parallel zum Transkript (WebSocket)
+- **Emoji-Reaktionen** (👍🎉❤️😂🙏👏) — animierte Bubbles
+- **Einladungs-Modal** (Link kopieren + E-Mail-Einladung)
+- **3 Sprachkanäle** (Original + AI-Übersetzungen)
+- **Transkript-Download** als TXT
+- **Keyboard-Shortcuts**: `M` Mic, `C` Captions, `S` Screen, `R` Record, `V` Video, `D` Download, `I` Invite, `Esc` Close
+
+### Meeting Scheduling
+- **Datum/Uhrzeit-Picker** für geplante Meetings
+- **Beschreibung + E-Mail-Einladungen** bei Erstellung
+- **Einladungs-E-Mails** (DE/EN/FR) mit Termin + Join-Link
+- **Live-Countdown** auf dem Dashboard ("2h 14m 38s")
+- **Status**: scheduled → active → ended
+
+### Dashboard Widgets
+- **Nächstes Meeting**: Live-Countdown mit Name + Datum
+- **Aktivitäts-Bars**: 7-Tage-Übersicht
+- **Quick Actions**: Links zu allen Hauptseiten
 
 ### Transcript Viewer
 - Vollständiger Gesprächsverlauf mit Übersetzungen
@@ -194,7 +213,10 @@ Landing Page
 | Auth | Magic Link (Demo: localStorage) |
 | PWA | manifest.json + Service Worker |
 | Deployment | Netlify (`_redirects`) |
-| Backend (geplant) | Python 3.12, FastAPI, PostgreSQL, Redis |
+| Auth Backend | Python 3.12, FastAPI, SQLAlchemy 2, PostgreSQL 16, Redis 7 |
+| Meeting Backend | Python 3.12, FastAPI, WebSocket, argostranslate |
+| Translation | argostranslate (offline, open-source, DE↔EN↔FR↔ES) |
+| ASR | Web Speech API (Browser), Whisper-ready (Option B) |
 
 ### Design System — LexAdQ
 
