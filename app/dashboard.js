@@ -171,6 +171,40 @@
           });
         }
       } catch (err) { /* silent — demo data stays */ }
+
+      // ── Next Meeting Widget ──
+      try {
+        const all = await apiGet(cfg.MEETING_API_BASE, "/meetings");
+        const scheduled = all
+          .filter(m => m.status === "scheduled" && m.scheduled_at)
+          .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+
+        if (scheduled.length > 0) {
+          const next = scheduled[0];
+          const noneEl = document.getElementById("nextMeetingNone");
+          const infoEl = document.getElementById("nextMeetingInfo");
+          const nameEl = document.getElementById("nextMeetingName");
+          const dateEl = document.getElementById("nextMeetingDate");
+          const cdEl = document.getElementById("nextMeetingCountdown");
+
+          if (noneEl) noneEl.classList.add("hidden");
+          if (infoEl) infoEl.classList.remove("hidden");
+          if (nameEl) nameEl.textContent = next.name;
+          if (dateEl) dateEl.textContent = new Date(next.scheduled_at).toLocaleString("de-DE");
+
+          // Live countdown
+          function updateCountdown() {
+            const diff = new Date(next.scheduled_at) - new Date();
+            if (diff <= 0) { if (cdEl) cdEl.textContent = "Jetzt!"; return; }
+            const h = Math.floor(diff / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            if (cdEl) cdEl.textContent = `${h}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
+          }
+          updateCountdown();
+          setInterval(updateCountdown, 1000);
+        }
+      } catch (e) { /* silent */ }
     })();
   }
 
