@@ -703,6 +703,15 @@
 }
 .video-tile-self { border: 2px solid var(--lx-gold-border); }
 
+/* Streaming Transcript */
+.transcript-partial { opacity: 0.7; }
+.transcript-text-streaming { color: var(--lx-text-muted); }
+.streaming-cursor {
+  display: inline-block; color: var(--lx-gold); font-weight: 700;
+  animation: blink-cursor 0.8s step-end infinite;
+}
+@keyframes blink-cursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
 /* Sentiment Indicator */
 .sentiment-dot { font-size: 12px; margin-left: auto; cursor: default; }
 

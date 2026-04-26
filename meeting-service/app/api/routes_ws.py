@@ -98,6 +98,29 @@ async def meeting_websocket(
             if msg_type == "ping":
                 await websocket.send_text(json.dumps({"type": "pong"}))
 
+            elif msg_type == "transcript_partial":
+                # Interim speech result — broadcast immediately, no translation
+                partial_text = msg.get("text", "").strip()
+                partial_lang = msg.get("lang", "").strip()
+                if partial_text:
+                    offset_ms = 0
+                    if meeting.started_at:
+                        offset_ms = int((datetime.now(timezone.utc) - meeting.started_at).total_seconds() * 1000)
+                    total_secs = offset_ms // 1000
+                    time_str = f"{total_secs // 60:02d}:{total_secs % 60:02d}"
+
+                    await ws_mgr.broadcast(
+                        meeting_id,
+                        {
+                            "type": "transcript_partial",
+                            "speaker": participant.display_name,
+                            "time": time_str,
+                            "lang": partial_lang.upper() if partial_lang else "?",
+                            "text": partial_text,
+                            "participant_id": str(participant.participant_id),
+                        },
+                    )
+
             elif msg_type == "transcript_submit":
                 text = msg.get("text", "").strip()
                 lang = msg.get("lang", "").strip()
@@ -170,13 +193,14 @@ async def meeting_websocket(
                     # Get provider name from first translation
                     provider_used = translations[0].get("provider", "") if translations and isinstance(translations[0], dict) else ""
 
-                    # Broadcast to all
+                    # Broadcast final transcript (replaces any partial)
                     await ws_mgr.broadcast(
                         meeting_id,
                         {
-                            "type": "transcript",
+                            "type": "transcript_final",
                             "segment_id": str(segment.segment_id),
                             "speaker": participant.display_name,
+                            "participant_id": str(participant.participant_id),
                             "time": time_str,
                             "lang": lang.upper(),
                             "text": text,

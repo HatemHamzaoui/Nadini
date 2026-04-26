@@ -57,7 +57,7 @@
 
       // Speech recognition results → WebSocket or local transcript
       AudioCapture.onResult(({ text, lang, isFinal, confidence }) => {
-        // Update interim captions
+        // Update captions (always, both interim and final)
         if (captionsOn && captionsOverlay) {
           const origText = captionsOverlay.querySelector("#captionOriginal .caption-text");
           const origLang = captionsOverlay.querySelector("#captionOriginal .caption-lang");
@@ -68,30 +68,26 @@
           }
         }
 
-        // On final result → send transcript
-        if (isFinal && text.trim()) {
-          const entry = {
-            type: "transcript_submit",
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          if (isFinal && text.trim()) {
+            // Final → full translation pipeline
+            ws.send(JSON.stringify({ type: "transcript_submit", text: text.trim(), lang }));
+          } else if (text.trim().split(/\s+/).length >= 3) {
+            // Interim with 3+ words → send partial for live streaming
+            ws.send(JSON.stringify({ type: "transcript_partial", text: text.trim(), lang }));
+          }
+        } else if (isFinal && text.trim()) {
+          // Demo mode: render locally
+          const fakeEntry = {
+            speaker: myName,
+            time: timerEl.textContent,
+            lang: lang.toUpperCase(),
             text: text.trim(),
-            lang: lang,
             translations: [],
           };
-
-          if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify(entry));
-          } else {
-            // Demo mode: render locally
-            const fakeEntry = {
-              speaker: localStorage.getItem("nadini-user-email")?.split("@")[0] || "Du",
-              time: timerEl.textContent,
-              lang: lang.toUpperCase(),
-              text: text.trim(),
-              translations: [],
-            };
-            container.appendChild(createTranscriptEntry(fakeEntry));
-            setSpeaker(fakeEntry.speaker);
-            if (autoScroll) container.scrollTop = container.scrollHeight;
-          }
+          container.appendChild(createTranscriptEntry(fakeEntry));
+          setSpeaker(fakeEntry.speaker);
+          if (autoScroll) container.scrollTop = container.scrollHeight;
         }
       });
 
@@ -407,7 +403,33 @@
       try {
         const msg = JSON.parse(event.data);
 
-        if (msg.type === "transcript") {
+        if (msg.type === "transcript_partial") {
+          // Streaming: show/update partial entry (no translations yet)
+          const partialId = `partial-${msg.participant_id}`;
+          let existing = document.getElementById(partialId);
+          if (!existing) {
+            existing = document.createElement("div");
+            existing.id = partialId;
+            existing.className = "transcript-entry transcript-partial";
+            container.appendChild(existing);
+          }
+          existing.innerHTML = `
+            <div class="transcript-header">
+              <span class="transcript-speaker">${msg.speaker}</span>
+              <span class="transcript-time">${msg.time}</span>
+              <span class="transcript-lang-tag tag-original">${msg.lang} · ···</span>
+            </div>
+            <p class="transcript-text transcript-text-streaming">${msg.text}<span class="streaming-cursor">|</span></p>
+          `;
+          setSpeaker(msg.speaker);
+          if (autoScroll) container.scrollTop = container.scrollHeight;
+
+        } else if (msg.type === "transcript_final" || msg.type === "transcript") {
+          // Final: replace partial with full entry + translations
+          const partialId = `partial-${msg.participant_id}`;
+          const partial = document.getElementById(partialId);
+          if (partial) partial.remove();
+
           container.appendChild(createTranscriptEntry(msg));
           updateCaptions(msg);
           setSpeaker(msg.speaker);
