@@ -14,6 +14,7 @@ from redis.asyncio import Redis
 from app.api import deps
 from app.api.routes_meetings import router as meetings_router
 from app.api.routes_misc import router as misc_router
+from app.api.routes_incidents import router as incidents_router
 from app.api.routes_providers import router as providers_router
 from app.api.routes_transcript import router as transcript_router
 from app.api.routes_ws import router as ws_router
@@ -155,6 +156,7 @@ def create_app() -> FastAPI:
 
     app.include_router(misc_router)
     app.include_router(meetings_router)
+    app.include_router(incidents_router)
     app.include_router(transcript_router)
     app.include_router(providers_router)
     app.include_router(ws_router)

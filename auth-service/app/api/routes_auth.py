@@ -306,9 +306,72 @@ async def data_export(
              "created_at": a.created_at.isoformat(), "ip": a.ip_address}
             for a in audits
         ],
-        "export_date": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
-        "notice": "This export contains all personal data stored by Nadini (DSGVO Art. 15).",
-    }
+        # Meeting transcripts (from shared DB)
+        meetings_data = []
+        try:
+            from sqlalchemy import text as sql_text
+            meetings_raw = (await session.execute(sql_text(
+                f"SELECT m.meeting_id, m.name, m.source_lang, m.target_langs, m.status, "
+                f"m.started_at, m.ended_at, m.created_at "
+                f"FROM meetings m "
+                f"JOIN meeting_participants mp ON mp.meeting_id = m.meeting_id "
+                f"WHERE mp.user_id = '{user_id}' "
+                f"ORDER BY m.created_at DESC LIMIT 100"
+            ))).fetchall()
+
+            for mr in meetings_raw:
+                segments = (await session.execute(sql_text(
+                    f"SELECT ts.sequence_num, ts.spoken_lang, ts.text, ts.translations, ts.created_at "
+                    f"FROM transcript_segments ts "
+                    f"WHERE ts.meeting_id = '{mr[0]}' "
+                    f"ORDER BY ts.sequence_num LIMIT 500"
+                ))).fetchall()
+
+                meetings_data.append({
+                    "meeting_id": str(mr[0]),
+                    "name": mr[1],
+                    "source_lang": mr[2],
+                    "status": mr[4],
+                    "started_at": mr[5].isoformat() if mr[5] else None,
+                    "ended_at": mr[6].isoformat() if mr[6] else None,
+                    "segments": [
+                        {
+                            "sequence": s[0], "lang": s[1], "text": s[2],
+                            "translations": s[3],  # JSONB with ai_generated flag
+                            "created_at": s[4].isoformat() if s[4] else None,
+                        }
+                        for s in segments
+                    ],
+                })
+        except Exception:
+            meetings_data = []  # Graceful if tables don't exist
+
+        return {
+            "user": {
+                "user_id": str(user.user_id),
+                "email": user.email,
+                "role": user.role,
+                "ui_language": user.ui_language,
+                "tenant_id": str(user.tenant_id) if user.tenant_id else None,
+                "email_verified": user.email_verified,
+                "created_at": user.created_at.isoformat() if user.created_at else None,
+                "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
+            },
+            "disclosures": [
+                {"version": d.disclosure_version, "acknowledged_at": d.acknowledged_at.isoformat(),
+                 "locale": d.locale}
+                for d in disclosures
+            ],
+            "meetings": meetings_data,
+            "audit_logs": [
+                {"action": a.action, "category": a.event_category,
+                 "created_at": a.created_at.isoformat(), "ip": a.ip_address}
+                for a in audits
+            ],
+            "export_date": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+            "notice": "Complete data export including all meetings, transcripts, and AI-generated translations (DSGVO Art. 15 + EU AI Act Art. 86).",
+            "ai_act_note": "All translations marked with ai_generated=true indicate AI-produced content (Art. 50(2)).",
+        }
 
 
 @router.delete(

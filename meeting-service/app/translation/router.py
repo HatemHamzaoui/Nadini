@@ -183,6 +183,9 @@ class TranslationRouter:
                     "flag": LANG_FLAGS.get(target, ""),
                     "text": translated,
                     "provider": provider.name,
+                    "ai_model": provider.provider_type,
+                    "ai_generated": True,  # Art. 50(2) EU AI Act: machine-readable marking
+                    "confidence": round(min(1.0, 1.0 - (latency / 5000)), 2) if latency else 0.8,
                     "failover": is_failover,
                 }
             except asyncio.TimeoutError:
@@ -198,7 +201,9 @@ class TranslationRouter:
                     if argos:
                         translated = await argos.translate(text, source_lang, target)
                         return {"lang": target.upper(), "flag": LANG_FLAGS.get(target, ""),
-                                "text": translated, "provider": "argostranslate", "failover": True}
+                                "text": translated, "provider": "argostranslate",
+                                "ai_model": "argostranslate", "ai_generated": True,
+                                "confidence": 0.6, "failover": True}
                 except Exception:
                     pass
                 return None

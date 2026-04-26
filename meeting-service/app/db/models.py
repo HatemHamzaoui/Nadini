@@ -155,6 +155,31 @@ class TranscriptSegment(Base):
     meeting: Mapped[Meeting] = relationship(back_populates="segments")
 
 
+# ── Serious Incidents (EU AI Act Art. 73) ─────────────────────
+
+class SeriousIncident(Base):
+    __tablename__ = "serious_incidents"
+
+    incident_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid())
+    reported_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    category: Mapped[str] = mapped_column(String(50), nullable=False)
+    severity: Mapped[str] = mapped_column(String(20), nullable=False)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    affected_users_count: Mapped[int | None] = mapped_column(Integer)
+    root_cause: Mapped[str | None] = mapped_column(Text)
+    remediation_steps: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="open")
+    authority_notified: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    authority_notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    authority_reference: Mapped[str | None] = mapped_column(String(100))
+    extra_data: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
 # ── Provider Config ───────────────────────────────────────────
 
 class ProviderConfig(Base):

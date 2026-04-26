@@ -210,6 +210,27 @@ async def meeting_websocket(
                     )
                     await session.commit()
 
+                    # Art. 12 EU AI Act: Log AI interaction with model name
+                    try:
+                        from app.compliance.audit import AuditEventCategory, write_audit
+                        async with state.session_factory() as audit_session:
+                            await write_audit(
+                                audit_session,
+                                event_category=AuditEventCategory.AI_INTERACTION,
+                                action="meeting.translation_segment",
+                                user_id=participant.user_id,
+                                detail=f"Translated {lang}→{','.join(meeting.target_langs)}",
+                                extra_data={
+                                    "segment_id": str(segment.segment_id),
+                                    "meeting_id": str(meeting_id),
+                                    "providers": [t.get("provider", "") for t in translations if isinstance(t, dict)],
+                                    "ai_generated": True,
+                                },
+                            )
+                            await audit_session.commit()
+                    except Exception:
+                        pass
+
                     # Convert to time string
                     total_secs = offset_ms // 1000
                     time_str = f"{total_secs // 60:02d}:{total_secs % 60:02d}"
