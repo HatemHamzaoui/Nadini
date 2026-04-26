@@ -2,7 +2,8 @@
 
 **nadini.ai** — Real-time AI interpreting for meetings, conferences, and business communication.
 
-DSGVO-konform. AI-Act-ready. Mehrsprachig (DE / EN / FR). Open-Source-Übersetzung.
+10 Translation Providers. 32 Sprachpaare. Auto-Spracherkennung. Streaming-Pipeline.
+DSGVO-konform. AI-Act-ready. Mehrsprachig (DE / EN / FR + 30 weitere).
 
 [![CI](https://github.com/HatemHamzaoui/Nadini/actions/workflows/ci.yml/badge.svg)](https://github.com/HatemHamzaoui/Nadini/actions/workflows/ci.yml)
 
