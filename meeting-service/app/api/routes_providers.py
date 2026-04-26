@@ -42,6 +42,7 @@ async def list_providers(
             "enabled": cfg.enabled,
             "priority": cfg.priority,
             "supported_pairs": cfg.supported_pairs,
+            "has_key": bool(cfg.api_key),
             "health": health_data,
         })
     return result
@@ -82,9 +83,21 @@ async def update_provider(
         cfg.priority = body["priority"]
     if "api_url" in body:
         cfg.api_url = body["api_url"]
+    if "api_key" in body:
+        cfg.api_key = body["api_key"]  # Store key in DB
+    if "config_extra" in body:
+        cfg.config_extra = body["config_extra"]  # For Papago client_id/secret etc.
 
     await session.commit()
-    return {"status": "updated", "name": cfg.name, "enabled": cfg.enabled}
+
+    # Reload provider with new key
+    if state.provider_registry and ("api_key" in body or "enabled" in body):
+        async with state.session_factory() as reload_session:
+            await state.provider_registry.load_from_db(reload_session)
+            if state.translation_router:
+                await state.translation_router.load_routes(reload_session)
+
+    return {"status": "updated", "name": cfg.name, "enabled": cfg.enabled, "has_key": bool(cfg.api_key)}
 
 
 @router.get("/routes", summary="List language routes")

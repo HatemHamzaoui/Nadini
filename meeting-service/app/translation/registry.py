@@ -11,6 +11,7 @@ from app.translation.providers.argos_provider import ArgosProvider
 from app.translation.providers.azure_provider import AzureTranslatorProvider
 from app.translation.providers.claude_provider import ClaudeProvider
 from app.translation.providers.deepl_provider import DeepLProvider
+from app.translation.providers.deepseek_provider import DeepSeekProvider
 from app.translation.providers.google_provider import GoogleTranslateProvider
 from app.translation.providers.mistral_mock import MistralMockProvider
 from app.translation.providers.nllb_provider import NLLBProvider
@@ -31,6 +32,7 @@ PROVIDER_CLASSES = {
     "azure": AzureTranslatorProvider,
     "claude": ClaudeProvider,
     "nllb": NLLBProvider,
+    "deepseek": DeepSeekProvider,
 }
 
 
@@ -71,6 +73,16 @@ class ProviderRegistry:
 
             provider = cls()
             provider.name = cfg.name
+
+            # Inject API key from DB (overrides env var)
+            if cfg.api_key:
+                if hasattr(provider, "_api_key"):
+                    provider._api_key = cfg.api_key
+                # For Papago (needs client_id + secret in config_extra)
+                if hasattr(provider, "_client_id") and cfg.config_extra:
+                    provider._client_id = cfg.config_extra.get("client_id", "")
+                    provider._client_secret = cfg.config_extra.get("client_secret", "")
+
             self.register(provider, cfg)
 
         # Ensure argostranslate is always available

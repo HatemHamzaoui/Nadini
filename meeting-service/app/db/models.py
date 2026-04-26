@@ -167,6 +167,7 @@ class ProviderConfig(Base):
     provider_type: Mapped[str] = mapped_column(String(30), nullable=False)
     api_url: Mapped[str | None] = mapped_column(String(500))
     api_key_env: Mapped[str | None] = mapped_column(String(100))
+    api_key: Mapped[str | None] = mapped_column(Text)  # DB-stored key (admin-configurable)
     supported_pairs: Mapped[list] = mapped_column(JSONB, nullable=False)
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     priority: Mapped[int] = mapped_column(Integer, nullable=False, server_default="10")

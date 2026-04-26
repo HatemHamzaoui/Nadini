@@ -149,18 +149,56 @@
         if (dash) {
           const statusIcon = { green: "🟢", yellow: "🟡", red: "🔴", unknown: "⚪" };
           dash.innerHTML = `<table class="usage-table"><thead><tr>
-            <th>Provider</th><th>Typ</th><th>Status</th><th>Latenz</th><th>Aktiv</th>
+            <th>Provider</th><th>Typ</th><th>Status</th><th>Latenz</th><th>API-Key</th><th>Aktiv</th>
           </tr></thead><tbody>${providers.map(p => {
             const h = p.health || {};
             const icon = statusIcon[h.status] || "⚪";
+            const hasKey = p.has_key ? "✓ gesetzt" : "—";
             return `<tr>
               <td><strong>${p.name}</strong></td>
               <td>${p.provider_type}</td>
               <td>${icon} ${h.status || "?"}</td>
               <td>${h.avg_latency_ms ? Math.round(h.avg_latency_ms) + "ms" : "—"}</td>
-              <td>${p.enabled ? "✓" : "—"}</td>
+              <td>
+                <input type="password" class="form-input" style="width:120px;font-size:11px;padding:3px 6px;"
+                  placeholder="API-Key" data-provider-id="${p.provider_id}" data-field="api_key"
+                  value="${p.has_key ? '••••••••' : ''}">
+                <button class="btn-icon-sm" style="margin-left:4px;" onclick="saveProviderKey('${p.provider_id}', this)"
+                  title="Speichern">💾</button>
+              </td>
+              <td>
+                <input type="checkbox" ${p.enabled ? "checked" : ""}
+                  onchange="toggleProvider('${p.provider_id}', this.checked)">
+              </td>
             </tr>`;
           }).join("")}</tbody></table>`;
+
+          // Global functions for inline handlers
+          window.saveProviderKey = async (id, btn) => {
+            const input = btn.previousElementSibling;
+            const key = input.value.trim();
+            if (!key || key === "••••••••") return;
+            try {
+              await fetch(\`\${cfg.MEETING_API_BASE}/providers/\${id}\`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Authorization": \`Bearer \${token}\` },
+                body: JSON.stringify({ api_key: key }),
+              });
+              if (typeof toast !== "undefined") toast.success("API-Key gespeichert");
+              input.value = "••••••••";
+            } catch (e) { if (typeof toast !== "undefined") toast.error("Fehler"); }
+          };
+
+          window.toggleProvider = async (id, enabled) => {
+            try {
+              await fetch(\`\${cfg.MEETING_API_BASE}/providers/\${id}\`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "Authorization": \`Bearer \${token}\` },
+                body: JSON.stringify({ enabled }),
+              });
+              if (typeof toast !== "undefined") toast.success(enabled ? "Provider aktiviert" : "Provider deaktiviert");
+            } catch (e) { if (typeof toast !== "undefined") toast.error("Fehler"); }
+          };
         }
 
         // Load routes
