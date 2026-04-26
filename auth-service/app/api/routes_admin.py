@@ -254,3 +254,65 @@ async def list_tenant_users(
         }
         for u in users
     ]
+
+
+# ═══ EU AI Act Art. 27: FRIA ═══
+
+@router.get("/fria/template", summary="Get FRIA template (Art. 27)")
+async def get_fria_template(
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+) -> dict:
+    from app.compliance.contracts import generate_fria_template
+    return generate_fria_template()
+
+
+@router.post("/tenants/{tenant_id}/fria", summary="Submit FRIA assessment")
+async def submit_fria(
+    tenant_id: uuid.UUID,
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    body: dict,
+) -> dict:
+    from app.compliance.contracts import evaluate_fria
+    from datetime import datetime as dt, timezone as tz
+    tenant = (await session.execute(select(Tenant).where(Tenant.tenant_id == tenant_id))).scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    domain_scores = body.get("domain_scores", {})
+    overall_risk = evaluate_fria(domain_scores)
+    tenant.fria_completed_at = dt.now(tz.utc)
+    if overall_risk in ("low", "medium"):
+        tenant.high_risk_assessment_completed = True
+    await session.commit()
+    return {"tenant_id": str(tenant_id), "overall_risk": overall_risk, "fria_completed": True}
+
+
+# ═══ EU AI Act Art. 5: AUP Validation ═══
+
+@router.post("/validate-use-case", summary="Validate use case against prohibited practices (Art. 5)")
+async def validate_use_case_endpoint(
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    body: dict,
+) -> dict:
+    from app.compliance.literacy import validate_use_case
+    return validate_use_case(body.get("use_case_category", ""), body.get("risk_tier", "standard"))
+
+
+# ═══ EU AI Act Art. 4: AI Literacy ═══
+
+@router.get("/literacy/curriculum", summary="Get required training modules for a role")
+async def get_curriculum(
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    role: str = "admin",
+) -> dict:
+    from app.compliance.literacy import get_required_modules
+    return {"role": role, "modules": get_required_modules(role)}
+
+
+@router.post("/literacy/check", summary="Check AI literacy compliance")
+async def check_literacy(
+    admin_id: Annotated[uuid.UUID, Depends(require_admin_role)],
+    body: dict,
+) -> dict:
+    from app.compliance.literacy import check_literacy_compliance
+    return check_literacy_compliance(body.get("role", "user"), body.get("completed_modules", []))
