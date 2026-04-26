@@ -69,8 +69,24 @@
         }
       });
 
+      // Track detected language changes
+      let lastDetectedLang = meetingLang;
+      const langFlags = { de:"🇩🇪", en:"🇬🇧", fr:"🇫🇷", es:"🇪🇸", it:"🇮🇹", pt:"🇵🇹", ar:"🇸🇦", zh:"🇨🇳", ja:"🇯🇵", ko:"🇰🇷", ru:"🇷🇺", tr:"🇹🇷" };
+
       // Speech recognition results → WebSocket or local transcript
       AudioCapture.onResult(({ text, lang, isFinal, confidence }) => {
+        // Auto-language detection notification
+        if (lang && lang !== lastDetectedLang && confidence > 0.5) {
+          lastDetectedLang = lang;
+          const flag = langFlags[lang] || "";
+          if (typeof toast !== "undefined") {
+            toast.info(`${flag} Sprache erkannt: ${lang.toUpperCase()}`);
+          }
+          // Update the lang info in topbar
+          const langInfo = document.querySelector(".meeting-lang-info");
+          if (langInfo) langInfo.textContent = `${lang.toUpperCase()} → ${document.querySelector(".meeting-lang-info")?.dataset?.targets || "EN, FR"}`;
+        }
+
         // Update captions (always, both interim and final)
         if (captionsOn && captionsOverlay) {
           const origText = captionsOverlay.querySelector("#captionOriginal .caption-text");
@@ -345,11 +361,14 @@
       sentimentHTML = `<span class="sentiment-dot" style="color:${colors[entry.sentiment.label]}" title="${entry.sentiment.label}">${icons[entry.sentiment.label]}</span>`;
     }
 
+    const autoDetectBadge = entry.lang_changed ? `<span class="lang-auto-badge" title="Auto-detected">AUTO</span>` : "";
+
     el.innerHTML = `
       <div class="transcript-header">
         <span class="transcript-speaker">${entry.speaker}</span>
         <span class="transcript-time">${entry.time}</span>
         <span class="transcript-lang-tag ${tagClass}">${entry.lang} · ${langTag}</span>
+        ${autoDetectBadge}
         ${sentimentHTML}
       </div>
       <p class="transcript-text">${entry.text}</p>
@@ -447,6 +466,12 @@
           container.appendChild(createTranscriptEntry(msg));
           updateCaptions(msg);
           setSpeaker(msg.speaker);
+
+          // Language change notification
+          if (msg.lang_changed && msg.detected_lang && typeof toast !== "undefined") {
+            const flag = {de:"🇩🇪",en:"🇬🇧",fr:"🇫🇷",es:"🇪🇸",it:"🇮🇹",zh:"🇨🇳",ja:"🇯🇵",ar:"🇸🇦"}[msg.detected_lang] || "";
+            toast.info(`${flag} ${msg.speaker} spricht ${msg.detected_lang.toUpperCase()}`);
+          }
           if (msg.failover && typeof toast !== "undefined") {
             toast.info(`Übersetzung via Backup: ${msg.provider || "?"}`);
           }

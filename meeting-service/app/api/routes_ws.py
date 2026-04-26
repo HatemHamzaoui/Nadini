@@ -193,6 +193,9 @@ async def meeting_websocket(
                     # Get provider name from first translation
                     provider_used = translations[0].get("provider", "") if translations and isinstance(translations[0], dict) else ""
 
+                    # Detect if language changed from meeting source
+                    lang_changed = lang.lower() != meeting.source_lang.lower()
+
                     # Broadcast final transcript (replaces any partial)
                     await ws_mgr.broadcast(
                         meeting_id,
@@ -203,6 +206,8 @@ async def meeting_websocket(
                             "participant_id": str(participant.participant_id),
                             "time": time_str,
                             "lang": lang.upper(),
+                            "detected_lang": lang.lower(),
+                            "lang_changed": lang_changed,
                             "text": text,
                             "translations": translations,
                             "sentiment": sentiment_data,
