@@ -47,29 +47,32 @@ class HealthMonitor:
             await asyncio.sleep(self._interval)
 
     async def _check_all(self) -> None:
-        for provider in self._registry.list_all():
+        async def _check_one(provider):
             try:
                 status = await asyncio.wait_for(provider.health_check(), timeout=5.0)
-                health = ProviderHealth(
-                    status=status,
-                    avg_latency_ms=round(provider.get_latency_ms(), 1),
-                    last_check=datetime.now(timezone.utc),
-                    success_count=1,
+                return provider.name, ProviderHealth(
+                    status=status, avg_latency_ms=round(provider.get_latency_ms(), 1),
+                    last_check=datetime.now(timezone.utc), success_count=1,
                 )
             except asyncio.TimeoutError:
-                health = ProviderHealth(
-                    status=ProviderStatus.RED,
-                    last_check=datetime.now(timezone.utc),
-                    error_count=1,
-                    last_error="health_check_timeout",
+                return provider.name, ProviderHealth(
+                    status=ProviderStatus.RED, last_check=datetime.now(timezone.utc),
+                    error_count=1, last_error="timeout",
                 )
             except Exception as exc:
-                health = ProviderHealth(
-                    status=ProviderStatus.RED,
-                    last_check=datetime.now(timezone.utc),
-                    error_count=1,
-                    last_error=str(exc),
+                return provider.name, ProviderHealth(
+                    status=ProviderStatus.RED, last_check=datetime.now(timezone.utc),
+                    error_count=1, last_error=str(exc),
                 )
+
+        results = await asyncio.gather(
+            *(_check_one(p) for p in self._registry.list_all()), return_exceptions=True
+        )
+
+        for result in results:
+            if isinstance(result, Exception):
+                continue
+            name, health = result
 
             # Store in Redis
             key = f"{self._prefix}{provider.name}"

@@ -133,4 +133,57 @@
       if (typeof toast !== "undefined") toast.success("API-Schlüssel kopiert");
     });
   }
+
+  // ── Provider Dashboard (Live Mode) ──
+  if (isLive) {
+    (async () => {
+      try {
+        // Load providers
+        const res = await fetch(`${cfg.MEETING_API_BASE}/providers`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const providers = await res.json();
+
+        const dash = document.getElementById("providerDashboard");
+        if (dash) {
+          const statusIcon = { green: "🟢", yellow: "🟡", red: "🔴", unknown: "⚪" };
+          dash.innerHTML = `<table class="usage-table"><thead><tr>
+            <th>Provider</th><th>Typ</th><th>Status</th><th>Latenz</th><th>Aktiv</th>
+          </tr></thead><tbody>${providers.map(p => {
+            const h = p.health || {};
+            const icon = statusIcon[h.status] || "⚪";
+            return `<tr>
+              <td><strong>${p.name}</strong></td>
+              <td>${p.provider_type}</td>
+              <td>${icon} ${h.status || "?"}</td>
+              <td>${h.avg_latency_ms ? Math.round(h.avg_latency_ms) + "ms" : "—"}</td>
+              <td>${p.enabled ? "✓" : "—"}</td>
+            </tr>`;
+          }).join("")}</tbody></table>`;
+        }
+
+        // Load routes
+        const routeRes = await fetch(`${cfg.MEETING_API_BASE}/providers/routes`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        if (!routeRes.ok) return;
+        const routes = await routeRes.json();
+
+        const routeList = document.getElementById("routeList");
+        if (routeList) {
+          const statusDot = { green: "🟢", yellow: "🟡", red: "🔴" };
+          routeList.innerHTML = routes.map(r => {
+            const pH = r.primary?.health || {};
+            const bH = r.backup?.health || {};
+            return `<div style="display:flex;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--lx-border-light);font-size:12px;">
+              <span style="font-weight:600;width:60px;">${r.source_lang.toUpperCase()} → ${r.target_lang.toUpperCase()}</span>
+              <span>Primary: ${statusDot[pH.status] || "⚪"} ${r.primary?.name || "?"}</span>
+              <span>Backup: ${statusDot[bH.status] || "⚪"} ${r.backup?.name || "?"}</span>
+            </div>`;
+          }).join("");
+        }
+      } catch (e) { /* silent */ }
+    })();
+  }
 })();

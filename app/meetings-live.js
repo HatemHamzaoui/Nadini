@@ -84,7 +84,8 @@
       icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>`;
     }
 
-    const desc = m.description ? `<span class="meeting-row-desc">${m.description}</span>` : "";
+    const escDesc = (m.description || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const desc = escDesc ? `<span class="meeting-row-desc">${escDesc}</span>` : "";
     const iconClass = type === "upcoming" ? "meeting-row-icon-upcoming" : "meeting-row-icon-done";
 
     return `
@@ -92,7 +93,7 @@
         <div class="meeting-row-left">
           <div class="meeting-row-icon ${iconClass}">${icon}</div>
           <div class="meeting-row-info">
-            <h3>${m.name}</h3>
+            <h3>${m.name} ${m.mode === "live" ? '<span class="mode-badge-live">🎙️ Live</span>' : ''}</h3>
             ${desc}
             <div class="meeting-row-meta">
               <span>${dateLine}</span><span class="meta-sep">&middot;</span>
