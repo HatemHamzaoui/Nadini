@@ -85,9 +85,24 @@
   });
 
   // ── Save Buttons ──
+  const cfg = typeof NADINI_CONFIG !== "undefined" ? NADINI_CONFIG : { API_MODE: "demo" };
+  const isLive = cfg.API_MODE === "live" && token && token !== "demo-access-token";
+
   document.querySelectorAll("[id^='save']").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       btn.disabled = true;
+
+      if (isLive && btn.id === "saveProfileBtn") {
+        try {
+          const uiLangVal = document.getElementById("uiLang")?.value;
+          await fetch(`${cfg.AUTH_API_BASE}/auth/me`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ ui_language: uiLangVal }),
+          });
+        } catch (e) { /* silent */ }
+      }
+
       setTimeout(() => { btn.disabled = false; }, 800);
       if (typeof toast !== "undefined") toast.success("Einstellungen gespeichert");
     });

@@ -21,6 +21,7 @@ from app.api.schemas import (
     RefreshRequest,
     RefreshResponse,
     TokenResponse,
+    UpdateProfileRequest,
     UserOut,
 )
 from app.compliance.audit import AuditAction, AuditEventCategory, write_audit
@@ -164,6 +165,38 @@ async def refresh_tokens(
         access_token=new_access,
         refresh_token=new_refresh,
         expires_in=expires_in,
+    )
+
+
+@router.patch(
+    "/me",
+    response_model=UserOut,
+    summary="Update the current user's profile",
+)
+async def update_me(
+    payload: UpdateProfileRequest,
+    user_id: Annotated[str, Depends(current_user_id)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> UserOut:
+    from sqlalchemy import select
+
+    from app.db.models import User
+
+    user = (
+        await session.execute(select(User).where(User.user_id == user_id))
+    ).scalar_one()
+
+    if payload.ui_language is not None:
+        user.ui_language = payload.ui_language
+    # display_name not in User model yet — stored client-side for now
+
+    await session.commit()
+
+    return UserOut(
+        user_id=user.user_id,
+        email=user.email,
+        ui_language=user.ui_language,
+        tenant_id=user.tenant_id,
     )
 
 
